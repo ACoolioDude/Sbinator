@@ -8,14 +8,15 @@ on:
 
 jobs:
     Linux:
-      runs-on: ubuntu-latest
+      runs-on: ubuntu-24
+      permissions: write-all
 
       steps:
         - uses: actions/checkout@v4
 
         - uses: krdlab/setup-haxe@v2
           with:
-            haxe-version: 5.0.0-preview.1
+            haxe-version: 4.3.7
         
         - name: Restore current build cache for faster compiling
           uses: actions/cache@v4.2.3
@@ -25,8 +26,8 @@ jobs:
               .haxelib/
               export/release/linux/haxe/
               export/release/linux/obj/
-        - run: |
-            echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
+            run: |
+             echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
         
         - name: Install VLC libs
           run: |
