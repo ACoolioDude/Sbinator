@@ -11,22 +11,22 @@ jobs:
       runs-on: ubuntu-latest
 
       steps:
-        - uses: actions/checkout@v2
+        - uses: actions/checkout@v4
 
         - uses: krdlab/setup-haxe@v2
           with:
             haxe-version: 5.0.0-preview.1
         
         - name: Restore current build cache for faster compiling
-          uses: actions/cache@v3
+          uses: actions/cache@v4.2.3
           with:
             key: cache-build-linux
             path: |
               .haxelib/
               export/release/linux/haxe/
               export/release/linux/obj/
-            restore-keys: |
-              cache-build-linux
+        - run: |
+            echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
         
         - name: Install VLC libs
           run: |
@@ -76,36 +76,34 @@ jobs:
                 }
               }
         - name: Uploading new cache
-          uses: actions/cache@v3
+          uses: actions/cache@v4.2.3
           with:
             key: cache-build-linux
             path: |
               .haxelib/
               export/release/linux/haxe/
               export/release/linux/obj/
-            restore-keys: |
-              cache-build-linux
 
     MacOS:
       runs-on: macos-15
 
       steps:
-        - uses: actions/checkout@v2
+        - uses: actions/checkout@v4
 
         - uses: krdlab/setup-haxe@v2
           with:
             haxe-version: 4.3.7
 
         - name: Restore current build cache for faster compiling
-          uses: actions/cache@v3
+          uses: actions/cache@v4.2.3
           with:
             key: cache-build-mac
             path: |
               .haxelib/
               export/release/macos/haxe/
               export/release/macos/obj/
-            restore-keys: |
-              cache-build-mac
+        - run: |
+           echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
           
         - name: Install required Haxelib libs
           run: |
@@ -151,36 +149,34 @@ jobs:
               }
 
         - name: Uploading new cache
-          uses: actions/cache@v3
+          uses: actions/cache@v4.2.3
           with:
             key: cache-build-mac
             path: |
               .haxelib/
               export/release/macos/haxe/
               export/release/macos/obj/
-            restore-keys: |
-              cache-build-mac
 
     Windows:
       runs-on: windows-latest
 
       steps:
-        - uses: actions/checkout@v2
+        - uses: actions/checkout@v4
 
         - uses: krdlab/setup-haxe@v2
           with:
             haxe-version: 4.3.7
 
         - name: Restore current build cache for faster compiling
-          uses: actions/cache@v3
+          uses: actions/cache@v4.2.3
           with:
             key: cache-build-windows
             path: |
               .haxelib/
               export/release/windows/haxe/
               export/release/windows/obj/
-            restore-keys: |
-              cache-build-windows
+        - run: |
+           echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
           
         - name: Install required Haxelib libs
           run: |
@@ -225,12 +221,10 @@ jobs:
                 }
               }
         - name: Uploading new cache
-          uses: actions/cache@v3
+          uses: actions/cache@v4.2.3
           with:
             key: cache-build-windows
             path: |
               .haxelib/
               export/release/windows/haxe/
-              export/release/windows/obj/
-            restore-keys: |
-              cache-build-windows
+              export/release/windows/obj
