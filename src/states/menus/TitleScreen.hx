@@ -33,7 +33,9 @@ class TitleScreen extends StateHandler
 		DiscordClient.changePresence("In Title Menu", null);
 		#end
 
-        bg = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, 0xFF8b0000);
+		Paths.musicPath("menus/mainMenu.ogg");
+
+        bg = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, 0xFFcd5e00);
         bg.scrollFactor.set();
         bg.screenCenter();
         bg.alpha = 0.7;
@@ -78,9 +80,9 @@ class TitleScreen extends StateHandler
         versionText.setFormat(Paths.fontPath("bahnschrift.ttf"), 20, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
         add(versionText);
 
-        creatorName = new FlxText(1170, FlxG.height - -28, 0, "Stefan2008", 16);
+        creatorName = new FlxText(1160, FlxG.height - -28, 0, "ACoolioDude", 16);
         creatorName.scrollFactor.set();
-        creatorName.setFormat(Paths.fontPath("bahnschrift.ttf"), 20, FlxColor.RED, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+        creatorName.setFormat(Paths.fontPath("bahnschrift.ttf"), 20, FlxColor.ORANGE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
         add(creatorName);
 
         gameLogo = new FlxSprite(0, -150).loadGraphic(Paths.imagePath("mainMenu/logo"));
@@ -162,14 +164,14 @@ class TitleScreen extends StateHandler
         if (FlxG.mouse.overlaps(exitGameButton) && controls)
         {
             if (FlxG.mouse.justPressed)
-            {   
+            {
                 openSubState(new PopUpEvent("Closing game Confirmation",
 				"Are you sure you want to exit the whole game?", [
 				{
 					text: "Yes",
 					callback: function()
 					{
-						lime.system.System.exit(1);
+						System.exit(1);
 					}
 				},
                     {

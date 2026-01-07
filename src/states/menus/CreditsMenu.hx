@@ -30,15 +30,13 @@ class CreditsMenu extends StateHandler
     var creditsDesc:FlxText;
     var creditsIcon:FlxSprite;
     var creditsList:Array<Array<String>> = [
-       ['stefan', 'Stefan2008', 'Creator, programmer and artist', '8b0000', 'https://www.youtube.com/@stefan2008_official'],
+       ['stefan', 'ACoolioDude', 'Creator, programmer and artist', 'cd5e00', 'https://www.youtube.com/@stefan2008_official'],
        ['maysLastPlays', 'MaysLastPlay', 'First contributor of our project', '1fe1de', 'https://www.youtube.com/@MaysLastPlay'],
        ['coreCat', 'CoreCat', 'For pop-up event code', '2c81b7', 'https://www.youtube.com/@core5570r'],
        ['riirai_luna', 'Riirai_Luna', 'Little supporter and suggester for funny crash handler title #1', 'cc8b8b', 'https://www.youtube.com/@Riirai_Luna'],
        ['fox', 'Fox', 'Random crash handler title suggester #2', 'e27d23', 'https://www.youtube.com/@Fox22213']
     ];
     var creditsGroup:FlxTypedGroup<FlxSprite>;
-    var leftArrow:FlxSprite;
-    var rightArrow:FlxSprite;
     var currentSelector:Int = 0; // This will select a icon if of mentioned string from credits list. Default it will give Stefan2008 because id is 0. --Stefan2008
 
     override public function create()
@@ -112,26 +110,6 @@ class CreditsMenu extends StateHandler
         creditsDesc.y = FlxG.height - 38;
         add(creditsDesc);
 
-		leftArrow = new FlxSprite();
-		leftArrow.frames = FlxAtlasFrames.fromSparrow("assets/images/creditsMenu/arrows.png", "assets/images/creditsMenu/arrows.xml");
-		leftArrow.screenCenter();
-		leftArrow.animation.addByPrefix('leftIdle', "arrow left", 24);
-		leftArrow.animation.addByPrefix('pressLeft', "arrow push left", 24);
-		leftArrow.x = 50;
-		leftArrow.animation.play('leftIdle');
-		leftArrow.updateHitbox();
-		add(leftArrow);
-
-		rightArrow = new FlxSprite();
-		rightArrow.frames = FlxAtlasFrames.fromSparrow("assets/images/creditsMenu/arrows.png", "assets/images/creditsMenu/arrows.xml");
-		rightArrow.screenCenter();
-		rightArrow.animation.addByPrefix('rightIdle', "arrow right", 24);
-		rightArrow.animation.addByPrefix('pressRight', "arrow push right", 24, false);
-		rightArrow.x += 550;
-		rightArrow.animation.play('rightIdle');
-		rightArrow.updateHitbox();
-		add(rightArrow);
-
 		button = new FlxSprite().loadGraphic(Paths.imagePath("creditsMenu/button"));
         button.scrollFactor.set();
         button.y = 650;
@@ -152,9 +130,10 @@ class CreditsMenu extends StateHandler
         textFloater += elapsed;
         creditsName.y = 190 + (Math.sin(textFloater) * 1 ) * 10;
 
-        if (FlxG.mouse.overlaps(button))
-        {
+        if (FlxG.mouse.overlaps(button)) {
             if (FlxG.mouse.justReleased) StateHandler.switchToNewState(new TitleScreen());
+        } else if (FlxG.keys.justPressed.ESCAPE) {
+            StateHandler.switchToNewState(new TitleScreen());
         }
 
         creditsGroup.forEach(function(member:FlxSprite)
@@ -173,11 +152,10 @@ class CreditsMenu extends StateHandler
             }
         });
 
-        if (FlxG.mouse.overlaps(leftArrow)) {
-            if (FlxG.mouse.justPressed) changeTheSelection(-1);
-        } else if (FlxG.mouse.overlaps(rightArrow)) {
-            if (FlxG.mouse.justPressed) changeTheSelection(1);
-        }
+        if (FlxG.keys.justPressed.A || FlxG.keys.justPressed.LEFT)
+            changeTheSelection(-1)
+        else if (FlxG.keys.justPressed.D || FlxG.keys.justPressed.RIGHT)
+            changeTheSelection(1);
 
         super.update(elapsed);
     }
@@ -186,7 +164,10 @@ class CreditsMenu extends StateHandler
     {
         currentSelector += changer;
 
-        if (currentSelector >= creditsGroup.length - 1) currentSelector = creditsGroup.length - 1; else if (currentSelector <= 0) currentSelector = 0;
+        if (currentSelector >= creditsGroup.length - 1)
+            currentSelector = creditsGroup.length - 1;
+        else if (currentSelector <= 0)
+        currentSelector = 0;
 
         creditsGroup.forEach(function(spr:FlxSprite)
         {
@@ -194,16 +175,12 @@ class CreditsMenu extends StateHandler
             spr.kill();
             spr.updateHitbox();
 
-            leftArrow.animation.play('leftIdle');
-            rightArrow.animation.play('rightIdle');
 
             if (spr.ID == currentSelector)
             {
                 spr.revive();
                 spr.updateHitbox();
                 spr.screenCenter();
-                leftArrow.animation.play("pressLeft");
-                rightArrow.animation.play("pressRight");
             }
             spr.centerOffsets();
         });

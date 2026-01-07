@@ -64,6 +64,9 @@ haxelib install openfl
 haxelib install hxcpp
 haxelib install hxdiscord_rpc
 sleep 2
+echo Updating Haxelib
+haxelib --global update haxelib
+sleep 2
 echo All required libraries for Haxelib are downloaded and installed successfully. Setuping Lime..
 haxelib run lime setup
 sleep 1

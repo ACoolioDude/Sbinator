@@ -25,12 +25,19 @@ class StateHandler extends FlxUIState
         {
             if(target != null) FlxG.switchState(target); else FlxG.resetState();
         };
-    
+
         if (activeState != null) activeState.openSubState(trans);
+
+        fadeOutMusic();
     }
 
     public function beatTheHit():Void
     {
         // Just a base beat hitter
+    }
+
+    public static function fadeOutMusic():Void
+    {
+        if (FlxG.sound.music != null) FlxG.sound.music.fadeOut(1);
     }
 }

@@ -26,7 +26,7 @@ using StringTools;
 @:keep
 @:access(BitmapData)
 class EngineConfiguration
-{   
+{
     // Game version
     public static var gameVersion:String = "1.0.0a";
 
@@ -45,9 +45,9 @@ class EngineConfiguration
     // Code from CoreCat's FNF CDev Engine to fix text and button position! Cheers dude, but i am sad that your engine got discontinued :(..
     /**
 	 * Moving the `obj1` to `obj2`'s center position
-	 * @param obj1 
-	 * @param obj2 
-	 * @param useFrameSize 
+	 * @param obj1
+	 * @param obj2
+	 * @param useFrameSize
 	 */
 	public static function moveSpritesToCenter(obj1:FlxSprite, obj2:FlxSprite, ?useFrameSize:Bool)
 	{
@@ -80,7 +80,7 @@ class EngineConfiguration
     {
         var desktopEnvironment = Sys.getEnv("XDG_CURRENT_DESKTOP");
         if (desktopEnvironment != null) return desktopEnvironment;
-    
+
         desktopEnvironment = Sys.getEnv("DESKTOP_SESSION");
         if (desktopEnvironment != null) return desktopEnvironment;
 
@@ -92,7 +92,7 @@ class EngineConfiguration
 
 // Paths system
 class Paths
-{   
+{
     inline public static final ROOT_FOLDER:String = "assets";
     public static var EXISTING_SOUND:Array<String> = ['.ogg', '.wav'];
     public static var currentTrackedAssets:Map<String, FlxGraphic> = [];
@@ -111,16 +111,17 @@ class Paths
         return getCurrentPath(null, file);
     }
 
-    inline static public function dataPath(key:String) 
+    inline static public function dataPath(key:String)
         return file('data/$key');
 
-    inline static public function soundPath(key:String, ?cache:Bool = true):Sound 
+    inline static public function soundPath(key:String, ?cache:Bool = true):Sound
         return returnCurrentSound('sounds/$key', cache);
 
-    inline static public function musicPath(key:String, ?cache:Bool = true):Sound 
+    // This seems like a broken function because it tries to load a sound only
+    inline static public function musicPath(key:String, ?cache:Bool = true):Sound
         return returnCurrentSound('music/$key', cache);
 
-    inline static public function imagePath(key:String, ?cache:Bool = true):FlxGraphic 
+    inline static public function imagePath(key:String, ?cache:Bool = true):FlxGraphic
         return returnCurrentSprite('images/$key', cache);
 
     inline static public function fontPath(key:String)
@@ -144,14 +145,14 @@ class Paths
 
         // trace(spritePath);
 
-        trace('Missing $key sprite from "images" folder of root direcotry! Attempting to do not crash the game..');
+        trace('Missing $key sprite from "images" folder of root directory! Attempting to do not crash the game..');
         return null;
     }
 
     public static function returnCurrentSound(key:String, ?cacheSound:Bool = true, ?beepNoSound:Bool = true):Sound
     {
         for (i in EXISTING_SOUND)
-        {   
+        {
             // trace(file(key + i));
             if (Assets.exists(file(key + i), SOUND))
             {
@@ -160,15 +161,15 @@ class Paths
 
                 currentTrackedLocalAssets.push(soundPath);
                 return currentTrackedSounds.get(soundPath);
-            } 
+            }
             else if (beepNoSound)
             {
-                trace('Missing $key sound from "sounds" folder of root direcotry! Playing default Flixel beep sound instead..');
+                trace('Missing $key sound from "sounds" folder of root directory! Playing default Flixel beep sound instead..');
                 return FlxAssets.getSound("flixel/sounds/beep");
             }
         }
 
-        trace('Missing $key sound from "sounds" folder of root direcotry! Playing default Flixel beep sound instead..');
+        trace('Missing $key sound from "sounds" folder of root directory! Playing default Flixel beep sound instead..');
         return null;
     }
 
