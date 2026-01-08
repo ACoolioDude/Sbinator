@@ -114,12 +114,15 @@ class Paths
     inline static public function dataPath(key:String)
         return file('data/$key');
 
-    inline static public function soundPath(key:String, ?cache:Bool = true):Sound
-        return returnCurrentSound('sounds/$key', cache);
+    inline static public function soundPath(key:String, ?cache:Bool = true):Sound {
+        var sound:Sound = returnCurrentSound('sounds/$key', cache);
+        return sound;
+    }
 
-    // This seems like a broken function because it tries to load a sound only
-    inline static public function musicPath(key:String, ?cache:Bool = true):Sound
-        return returnCurrentSound('music/$key', cache);
+    inline static public function musicPath(key:String, ?cache:Bool = true):Sound {
+        var music:Sound = returnCurrentSound('music/$key', cache);
+        return music;
+    }
 
     inline static public function imagePath(key:String, ?cache:Bool = true):FlxGraphic
         return returnCurrentSprite('images/$key', cache);

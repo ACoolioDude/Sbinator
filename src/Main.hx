@@ -45,7 +45,7 @@ class Main extends Sprite
         "Null Acess", // This is impossible to get into Flixel!
         "NullReferenceException" // C#, Unity, Java, Rust error
     ];
-	public static final releaseCycle:String = #if debug "Debugger"; #else "Relaser"; #end 
+	public static final releaseCycle:String = #if debug "Debugger"; #else "Releaser"; #end
 	static var previousState:FlxState;
 
 	public function new()

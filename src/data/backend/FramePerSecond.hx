@@ -216,7 +216,7 @@ class FramePerSecond extends Sprite {
             if (_delay <= FlxG.drawFramerate * 0.5) text.textColor = FlxColor.RED;
             text.textColor = FlxColor.WHITE;
         }
-	    
+
     }
 
     /**
@@ -272,17 +272,17 @@ class FramePerSecond extends Sprite {
             #if linux
             var process = new HiddenProcess("cat", ["/etc/os-release"]);
 		    if (process.exitCode() != 0) trace('Unable to grab OS Label');
-		    else 
+		    else
             {
 			    var distroName = "";
 			    var osVersion = "";
-			    for (line in process.stdout.readAll().toString().split("\n")) 
+			    for (line in process.stdout.readAll().toString().split("\n"))
                 {
-				    if (line.startsWith("PRETTY_NAME=")) 
+				    if (line.startsWith("PRETTY_NAME="))
                     {
 					    var index = line.indexOf('"');
 					    if (index != -1) distroName = line.substring(index + 1, line.lastIndexOf('"'));
-					else 
+					else
                     {
 						var arr = line.split("=");
 						arr.shift();
@@ -290,20 +290,20 @@ class FramePerSecond extends Sprite {
 					}
 				}
 
-				if (line.startsWith("VERSION=")) 
+				if (line.startsWith("VERSION="))
                 {
 					var index = line.indexOf('"');
 					if (index != -1)
 						osVersion = line.substring(index + 1, line.lastIndexOf('"'));
-					else 
+					else
                     {
 						var arr = line.split("=");
 						arr.shift();
 						osVersion = arr.join("=");
 					}
 				}
-			}   
-    
+			}
+
 			if (distroName != "") osName = '${distroName} ${osVersion}'.trim() + " (" + EngineConfiguration.getDEInfo() + ")";
 		    }
             #else
@@ -313,7 +313,7 @@ class FramePerSecond extends Sprite {
             trace('Unable to grab system label!');
         }
 
-        try 
+        try
         {
 			#if windows
 			var process = new HiddenProcess("wmic", ["cpu", "get", "name"]);
@@ -341,7 +341,7 @@ class FramePerSecond extends Sprite {
 		}
 
         try
-        {   
+        {
             gpuName = GL.getParameter(GL.RENDERER);
         } catch (e) {
             trace('Unable to grab GPU Name: $e');
@@ -407,7 +407,7 @@ class FramePerSecond extends Sprite {
     }
 
     function set_displayDebugger(v:Bool):Bool {
-        background.height = (v ? 95 : 43);
+        background.height = (v ? 120 : 43);
         return displayDebugger = v;
     }
 }

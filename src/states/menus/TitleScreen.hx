@@ -33,7 +33,8 @@ class TitleScreen extends StateHandler
 		DiscordClient.changePresence("In Title Menu", null);
 		#end
 
-		Paths.musicPath("menus/mainMenu.ogg");
+		if (FlxG.sound.music == null)
+			FlxG.sound.playMusic(Paths.musicPath('mainMenu'));
 
         bg = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, 0xFFcd5e00);
         bg.scrollFactor.set();
