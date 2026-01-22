@@ -75,7 +75,7 @@ class CrashState extends StateHandler
         crashText.screenCenter(X);
         add(crashText);
 
-        infoText = new FlxText(5, FlxG.height - -28, 0, "Press ESC to reset a game! / Press ENTER to open GitHub issue tab! / Press BACKSPACE to exit!", 16);
+        infoText = new FlxText(5, FlxG.height - -28, 0, "Press R to reset a game! / Press ENTER to open GitHub issue tab! / Press ESCAPE to exit!", 16);
         infoText.scrollFactor.set();
         infoText.setFormat(Paths.fontPath("bahnschrift.ttf"), 20, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
         infoText.screenCenter(X);
@@ -107,8 +107,8 @@ class CrashState extends StateHandler
 
     override public function update(elapsed:Float)
     {
-        if (FlxG.keys.justPressed.ESCAPE && controlsCheck) tweenOut(RESET) else if (FlxG.keys.justPressed.BACKSPACE && controlsCheck) tweenOut(EXIT);
-        if (FlxG.keys.justPressed.ENTER && controlsCheck) EngineConfiguration.openURL("https://github.com/Stefan2008Git/Sbinator/issues");
+        if (FlxG.keys.justPressed.R && controlsCheck) tweenOut(RESET) else if (FlxG.keys.justPressed.ESCAPE && controlsCheck) tweenOut(EXIT);
+        if (FlxG.keys.justPressed.ENTER && controlsCheck) EngineConfiguration.openWebURL("https://github.com/Stefan2008Git/Sbinator/issues");
 
         super.update(elapsed);
     }
@@ -136,6 +136,9 @@ class CrashState extends StateHandler
                     Application.current.window.title = "Sbinator";
                     FlxG.resetGame();
                 case EXIT:
+                    #if DISCORD_ALLOWED
+                    DiscordClient.shutdown();
+		            #end
                     lime.system.System.exit(0);
             }
         });

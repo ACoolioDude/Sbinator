@@ -30,7 +30,7 @@ class CreditsMenu extends StateHandler
     var creditsDesc:FlxText;
     var creditsIcon:FlxSprite;
     var creditsList:Array<Array<String>> = [
-       ['stefan', 'ACoolioDude', 'Creator, programmer and artist', 'cd5e00', 'https://www.youtube.com/@stefan2008_official'],
+       ['stefan', 'ACoolioDude', 'Creator, programmer and artist', 'cd5e00', 'https://www.youtube.com/@acooliodude'],
        ['maysLastPlays', 'MaysLastPlay', 'First contributor of our project', '1fe1de', 'https://www.youtube.com/@MaysLastPlay'],
        ['coreCat', 'CoreCat', 'For pop-up event code', '2c81b7', 'https://www.youtube.com/@core5570r'],
        ['riirai_luna', 'Riirai_Luna', 'Little supporter and suggester for funny crash handler title #1', 'cc8b8b', 'https://www.youtube.com/@Riirai_Luna'],
