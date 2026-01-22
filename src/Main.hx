@@ -121,10 +121,11 @@ class Main extends Sprite
 		#if linux
 		StateHandler.switchToNewState(new CrashState(stackTraceString + '\n\nCrash log created at: "${normalPath}"!'));
 		#else
-		#if DISCORD_ALLOWED
-		DiscordClient.shutdown();
 		Application.current.window.alert(stackTraceString + "\n\nPress OK to reset game!" + randomErrorMessages[FlxG.random.int(0, randomErrorMessages.length)] + " - Sbinator v" + EngineConfiguration.gameVersion);
 		FlxG.resetGame();
+		#if DISCORD_ALLOWED
+		DiscordClient.shutdown();
+		#end
 		#end
 		#end
 
