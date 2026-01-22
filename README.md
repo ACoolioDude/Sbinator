@@ -20,7 +20,7 @@
 <h1 align="center">Pause menu</h1>
 <img src="https://raw.githubusercontent.com/ACoolioDude/Sbinator/refs/heads/main/sbinator/previews/pause_menu.png"></img>
 
-<h1 align="center">Crash handler in-game (Linux only)</h1>
+<h1 align="center">Crash handler in-game (Linux and MacOS only)</h1>
 <img src="https://raw.githubusercontent.com/ACoolioDude/Sbinator/refs/heads/main/sbinator/previews/in-game_crash_handler.png"></img>
 
 <h1 align="center">Advanced FPS Counter with extra info</h1>
