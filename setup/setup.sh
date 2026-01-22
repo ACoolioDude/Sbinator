@@ -54,6 +54,9 @@ sleep 5
 echo Making Haxelib directory on home folder and setuping it
 mkdir ~/.local/share/haxelib && haxelib setup ~/.local/share/haxelib
 sleep 2
+echo Updating Haxelib
+haxelib --global update haxelib
+sleep 2
 echo Downloading and installing all required Haxelib libraries for compiling the game "(Note that this will depend on your internet speed)"..
 haxelib install flixel
 haxelib install flixel-addons
@@ -64,8 +67,8 @@ haxelib install openfl
 haxelib install hxcpp
 haxelib install hxdiscord_rpc
 sleep 2
-echo Updating Haxelib
-haxelib --global update haxelib
+echo Fixing Haxelib repo
+haxelib fixrepo
 sleep 2
 echo All required libraries for Haxelib are downloaded and installed successfully. Setuping Lime..
 haxelib run lime setup
