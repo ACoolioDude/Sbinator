@@ -127,13 +127,10 @@ class Main extends Sprite
 		DiscordClient.shutdown();
 		#end
 		#end
-		#end
 
 		Application.current.window.onClose.add(function() {
 			DataHandler.saveData();
 		});
-
-
 	}
 	#end
 }
