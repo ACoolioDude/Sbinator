@@ -17,6 +17,7 @@ import states.InitState;
 import states.game.PlayState;
 import states.menus.CreditsMenu;
 import states.menus.TitleScreen;
+import states.modules.CrashState;
 
 // Substates
 import substates.game.GameOver;

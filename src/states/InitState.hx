@@ -86,7 +86,7 @@ class InitState extends FlxState
         loadingBarBG.active = false;
         add(loadingBarBG);
 
-        loadingBar = new FlxSprite(loadingBarBG.x + 5, loadingBarBG.y + 5).makeGraphic(1, 1, FlxColor.RED);
+        loadingBar = new FlxSprite(loadingBarBG.x + 5, loadingBarBG.y + 5).makeGraphic(1, 1, FlxColor.ORANGE);
 		loadingBar.scale.set(0, 15);
 		loadingBar.updateHitbox();
         loadingBar.alpha = 0;
@@ -103,7 +103,7 @@ class InitState extends FlxState
     }
 
     public function doAThing()
-    {   
+    {
         new FlxTimer().start(2, function(tmr:FlxTimer)
         {
             sbinator.alpha = 0.2;
@@ -111,10 +111,10 @@ class InitState extends FlxState
         });
 
         new FlxTimer().start(4.5, function(tmr:FlxTimer)
-        {   
+        {
             statusText.alpha = 1;
             statusText.active = true;
-            
+
             loadingBarBG.alpha = 1;
             loadingBarBG.active = true;
 
@@ -126,7 +126,7 @@ class InitState extends FlxState
     }
 
     public function onCachingInit()
-    {   
+    {
 		for (folder in foldersToCache)
 		{
 			var folderPath = 'assets/images/' + folder;
@@ -162,10 +162,10 @@ class InitState extends FlxState
 		}
 
         if (done && loadedAssets >= totalAssets)
-		{   
+		{
             statusText.text = "Done!";
             new FlxTimer().start(2.5, function(tmr:FlxTimer)
-            {   
+            {
                 onInitDone();
             });
 		}
@@ -215,7 +215,7 @@ class InitState extends FlxState
 	}
 
     public function onInitDone()
-    {        
+    {
         sbinator.active = false;
         sbinator.alpha = 0;
 
@@ -232,7 +232,7 @@ class InitState extends FlxState
         loadingBar.active = false;
 
         pop.play();
-        pop.onComplete = function()                
+        pop.onComplete = function()
         {
             StateHandler.switchToNewState(new TitleScreen());
         }

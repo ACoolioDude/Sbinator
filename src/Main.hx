@@ -97,7 +97,7 @@ class Main extends Sprite
 		var stackTraceString = exception + StringTools.trim(CallStack.toString(CallStack.exceptionStack(true)));
 		var dateNow:String = Date.now().toString().replace(" ", "_").replace("'", ":");
 
-		path = 'crash/Sbinator - ${dateNow}.txt';
+		path = 'crash/Sbinator_${dateNow}.log';
 
 		#if sys
 		if (!FileSystem.exists("crash/"))
@@ -117,8 +117,13 @@ class Main extends Sprite
 
 		FlxG.bitmap.clearCache();
 
+		// It seems like "UncaughtErrorEvent" works only on release branch instead of debug since on debug it is disabled by default after many OpenFL changes
+		#if linux
+		StateHandler.switchToNewState(new CrashState(stackTraceString + '\n\nCrash log created at: "${normalPath}"!'));
+		#else
 		Application.current.window.alert(stackTraceString + "\n\nPress OK to reset game!" + randomErrorMessages[FlxG.random.int(0, randomErrorMessages.length)] + " - Sbinator v" + EngineConfiguration.gameVersion);
 		FlxG.resetGame();
+		#end
 
 		Application.current.window.onClose.add(function() {
 			DataHandler.saveData();
