@@ -9,19 +9,22 @@
 <details>
     <summary>Sbinator game preview</summary>
 <h1 align="center">Main menu (title menu)</h1>
-<img src="https://cdn.discordapp.com/attachments/1171174018091581472/1393995982894792784/image.png?ex=6875336d&is=6873e1ed&hm=a2e5940686ee04b6c4182e1d884268988875fa5e46c434e421cea88735a8367a&"></img>
+<img src="https://raw.githubusercontent.com/ACoolioDude/Sbinator/refs/heads/main/sbinator/previews/title_menu.png"></img>
 
 <h1 align="center">Credits menu</h1>
-<img src="https://cdn.discordapp.com/attachments/1171174018091581472/1393997335411032064/image.png?ex=687534af&is=6873e32f&hm=5880ac45b80091980c3d0addbd67efb20444950c0123c153503447e7b12eb5b3"></img>
-
-<h1 align="center">Main crash handler preview</h1>
-<img src="https://raw.githubusercontent.com/Stefan2008Git/Sbinator/refs/heads/main/sbinator/Screenshot_20250219_230343.png"></img>
+<img src="https://raw.githubusercontent.com/ACoolioDude/Sbinator/refs/heads/main/sbinator/previews/credits_menu.png"></img>
 
 <h1 align="center">In-game preview</h1>
-<img src="https://raw.githubusercontent.com/Stefan2008Git/Sbinator/refs/heads/main/sbinator/Screenshot_20250219_232038.png"></img>
+<img src="https://raw.githubusercontent.com/ACoolioDude/Sbinator/refs/heads/main/sbinator/previews/in-game.png"></img>
 
 <h1 align="center">Pause menu</h1>
-<img src="https://raw.githubusercontent.com/Stefan2008Git/Sbinator/refs/heads/main/sbinator/Screenshot_20250219_232120.png"></img>
+<img src="https://raw.githubusercontent.com/ACoolioDude/Sbinator/refs/heads/main/sbinator/previews/pause_menu.png"></img>
+
+<h1 align="center">Crash handler in-game (Linux only)</h1>
+<img src="https://raw.githubusercontent.com/ACoolioDude/Sbinator/refs/heads/main/sbinator/previews/in-game_crash_handler.png"></img>
+
+<h1 align="center">Advanced FPS Counter with extra info</h1>
+<img src="https://raw.githubusercontent.com/ACoolioDude/Sbinator/refs/heads/main/sbinator/previews/advanced_fps_counter.png"></img>
 </details>
 
 # Credits:
