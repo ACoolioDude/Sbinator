@@ -7,7 +7,7 @@ import data.backend.GameUtils.EngineConfiguration;
 import data.backend.GameUtils.DataHandler;
 import data.backend.GameUtils.Paths;
 #if linux
-import data.backend.linux.DEDetector;
+import data.backend.GameUtils.DEDetector;
 #end
 import data.backend.FramePerSecond;
 import data.backend.HiddenProcess;
