@@ -84,6 +84,10 @@ class Main extends Sprite
 			Paths.clearStoredGameMemory();
 			Paths.clearUnusedGameMemory();
 		});
+
+		FlxG.updateFramerate = 240;
+		FlxG.drawFramerate = 120;
+		FlxG.fixedTimestep = true;
 	}
 
 	#if sys

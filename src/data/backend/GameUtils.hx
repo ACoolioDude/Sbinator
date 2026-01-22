@@ -73,21 +73,6 @@ class EngineConfiguration
 
         // trace("URL: " + url);
     }
-
-    // Actual working DE/WM detector!
-    #if linux
-    public static function getDEInfo():String
-    {
-        var desktopEnvironment = Sys.getEnv("XDG_CURRENT_DESKTOP");
-        if (desktopEnvironment != null) return desktopEnvironment;
-
-        desktopEnvironment = Sys.getEnv("DESKTOP_SESSION");
-        if (desktopEnvironment != null) return desktopEnvironment;
-
-        if (Sys.getEnv("GNOME_DESKTOP_SESSION_ID") != null) return "GNOME " + Sys.command("gnome-shell", ["--version"]);
-        return "Unknown";
-    }
-    #end
 }
 
 // Paths system
@@ -236,3 +221,74 @@ class DataHandler
         FlxG.log.add("Options successfully saved!");
     }
 }
+
+// Actual working DE/WM detector!
+#if linux
+class DEDetector {
+
+    public static var de:String;
+    public static var version:String;
+
+    public static function init():Void {
+        if (de != null) return;
+
+        de = getDEInfo();
+        version = getDEVersion(de);
+    }
+
+    public static function getDEInfo():String
+    {
+        var desktopEnvironment = Sys.getEnv("XDG_CURRENT_DESKTOP");
+        if (desktopEnvironment != null && desktopEnvironment != "") {
+            return desktopEnvironment.split(";")[0];
+        }
+
+        desktopEnvironment = Sys.getEnv("DESKTOP_SESSION");
+        if (desktopEnvironment != null && desktopEnvironment != "") {
+            return desktopEnvironment.split(";")[0];
+        }
+
+        return "Unknown";
+    }
+
+    public static function getDEVersion(version:String):String {
+        switch (version.toUpperCase()) {
+            case "GNOME":
+                return parse(run("gnome-shell", ["--version"]));
+            case "KDE":
+                return parse(run("plasmashell", ["--version"]));
+            case "XFCE":
+                return parse(run("xfce4-panel", ["--version"]));
+            ccase "LXQT":
+                return parse(run("lxqt-session", ["--version"]));
+            case "LXDE":
+                return parse(run("lxsession", ["--version"]));
+            default:
+                return "Unknown";
+        }
+    }
+
+    static function run(command:String, arguments:Array<String>):String {
+        try {
+            var process = new sys.io.Process(command, arguments);
+            var output = process.stdout.readAll().toString();
+            process.close();
+            return output;
+        } catch (e:Dynamic) {
+            return "";
+        }
+    }
+
+    static function parse(s:String):String {
+        var clean = s;
+        clean = StringTools.replace(clean, "plasmashell", "");
+        clean = StringTools.replace(clean, "gnome-shell", "");
+        clean = StringTools.replace(clean, "xfce4-session", "");
+        clean = StringTools.replace(clean, "lxqt-session", "");
+        clean = clean.trim();
+
+        var r = ~/([0-9]+(\.[0-9]+){0,2}([^\s]*)?)/;
+        return r.match(clean) ? r.matched(0) : "Unknown";
+    }
+}
+#end

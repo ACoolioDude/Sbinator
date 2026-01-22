@@ -101,7 +101,7 @@ class FramePerSecond extends Sprite {
         addChild(background);
 
         text = new TextField();
-        text.defaultTextFormat = new TextFormat("_sans", 13, FlxColor.WHITE);
+        text.defaultTextFormat = new TextFormat(Paths.fontPath("bahnschrift.ttf"), 13, FlxColor.WHITE);
         text.selectable = false;
         text.autoSize = LEFT;
         addChild(text);
@@ -120,6 +120,10 @@ class FramePerSecond extends Sprite {
 
         #if FLX_DEBUG
         FlxG.debugger.visibilityChanged.add(updateVisibility);
+        #end
+
+        #if linux
+        DEDetector.init();
         #end
     }
 
@@ -164,7 +168,7 @@ class FramePerSecond extends Sprite {
         background.width = text.width + 5;
     }
 
-    #if FLX_DEBUG
+    #if debug
     /**
      * Synchronizes the overlay's visibility with the debugger's.
      * The overlay becomes hidden if the debugger is visible.
@@ -268,6 +272,11 @@ class FramePerSecond extends Sprite {
         static var cpuName:String = "Unknown";
         static var gpuName:String = "Unknown";
 
+        #if linux
+        var desktopEnvironment = DEDetector.de;
+        var deVersion = DEDetector.version;
+        #end
+
         if (lime.system.System.platformLabel != null && lime.system.System.platformLabel != "" && lime.system.System.platformVersion != null && lime.system.System.platformVersion != "") {
             #if linux
             var process = new HiddenProcess("cat", ["/etc/os-release"]);
@@ -304,7 +313,7 @@ class FramePerSecond extends Sprite {
 				}
 			}
 
-			if (distroName != "") osName = '${distroName} ${osVersion}'.trim() + " (" + EngineConfiguration.getDEInfo() + ")";
+			if (distroName != "") osName = '${distroName} ${osVersion}'.trim() + " (" + desktopEnvironment + " v" + deVersion + ")";
 		    }
             #else
             osName = lime.system.System.platformLabel.replace(lime.system.System.platformVersion, "").trim() + " - " + lime.system.System.platformVersion;
@@ -350,9 +359,6 @@ class FramePerSecond extends Sprite {
         return 'OS: ${osName}\nCPU: ${cpuName}\nGPU: ${gpuName}\nBranch: ${Main.releaseCycle}';
     }
 
-    /**
-     * Method called whenever a key has been released.
-     */
     function onKeyRelease(event:KeyboardEvent):Void {
         switch (event.keyCode) {
             case Keyboard.F5:
@@ -407,7 +413,7 @@ class FramePerSecond extends Sprite {
     }
 
     function set_displayDebugger(v:Bool):Bool {
-        background.height = (v ? 120 : 43);
+        background.height = (v ? 110 : 43);
         return displayDebugger = v;
     }
 }
