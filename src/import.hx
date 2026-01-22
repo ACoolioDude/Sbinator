@@ -6,11 +6,11 @@ import data.backend.Discord.DiscordClient;
 import data.backend.GameUtils.EngineConfiguration;
 import data.backend.GameUtils.DataHandler;
 import data.backend.GameUtils.Paths;
-import data.backend.FramePerSecond;
-import data.backend.HiddenProcess;
 #if linux
 import data.backend.linux.DEDetector;
 #end
+import data.backend.FramePerSecond;
+import data.backend.HiddenProcess;
 import transition.Transition;
 import transition.StateHandler;
 import transition.SubstateHandler;
