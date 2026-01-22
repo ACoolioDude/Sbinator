@@ -3,7 +3,6 @@ package data.backend;
 import flixel.FlxG;
 import flixel.util.FlxColor;
 import lime.graphics.opengl.GL;
-
 import openfl.Lib;
 import openfl.ui.Keyboard;
 import openfl.display.Bitmap;
@@ -214,13 +213,6 @@ class FramePerSecond extends Sprite {
             _fpsAverage += _fps;
             _fpsDelay = 0;
         }
-
-        if (!displayDebugger)
-        {
-            if (_delay <= FlxG.drawFramerate * 0.5) text.textColor = FlxColor.RED;
-            text.textColor = FlxColor.WHITE;
-        }
-
     }
 
     /**
@@ -254,7 +246,7 @@ class FramePerSecond extends Sprite {
     function getMemory():String {
         static var memoryUnits:Array<String> = ["B", "KB", "MB", "GB"];
 
-        var memory:Float = openfl.system.System.totalMemoryNumber;
+        var memory:Float = cpp.vm.Gc.memInfo64(cpp.vm.Gc.MEM_INFO_USAGE);
         var iterations:Int = 0;
 
         while (memory >= 1000) {
@@ -267,15 +259,11 @@ class FramePerSecond extends Sprite {
     }
 
     // Credits for CNE (Codename Engine) devs for this working code!
-    function getDebug():String {
+    public function getDebug():String {
         static var osName:String = "Unknown";
         static var cpuName:String = "Unknown";
+        static var cpuArch:String = "Unknown";
         static var gpuName:String = "Unknown";
-
-        #if linux
-        var desktopEnvironment = DEDetector.de;
-        var deVersion = DEDetector.version;
-        #end
 
         if (lime.system.System.platformLabel != null && lime.system.System.platformLabel != "" && lime.system.System.platformVersion != null && lime.system.System.platformVersion != "") {
             #if linux
@@ -313,7 +301,7 @@ class FramePerSecond extends Sprite {
 				}
 			}
 
-			if (distroName != "") osName = '${distroName} ${osVersion}'.trim() + " (" + desktopEnvironment + " v" + deVersion + ")";
+			if (distroName != "") osName = '${distroName} ${osVersion}'.trim() + " - " + DEDetector.de + " v" + DEDetector.version;
 		    }
             #else
             osName = lime.system.System.platformLabel.replace(lime.system.System.platformVersion, "").trim() + " - " + lime.system.System.platformVersion;
@@ -326,18 +314,18 @@ class FramePerSecond extends Sprite {
         {
 			#if windows
 			var process = new HiddenProcess("wmic", ["cpu", "get", "name"]);
-			if (process.exitCode() != 0) throw 'Could not fetch CPU information';
-
+			if (process.exitCode() != 0)
+			    throw 'Could not fetch CPU information';
 			cpuName = process.stdout.readAll().toString().trim().split("\n")[1].trim();
 			#elseif mac
 			var process = new HiddenProcess("sysctl -a | grep brand_string"); // Somehow this isnt able to use the args but it still works
-			if (process.exitCode() != 0) throw 'Could not fetch CPU information';
-
+			if (process.exitCode() != 0)
+			    throw 'Could not fetch CPU information';
 			cpuName = process.stdout.readAll().toString().trim().split(":")[1].trim();
 			#elseif linux
 			var process = new HiddenProcess("cat", ["/proc/cpuinfo"]);
-			if (process.exitCode() != 0) throw 'Could not fetch CPU information';
-
+			if (process.exitCode() != 0)
+			    throw 'Could not fetch CPU information';
 			for (line in process.stdout.readAll().toString().split("\n")) {
 				if (line.indexOf("model name") == 0) {
 					cpuName = line.substring(line.indexOf(":") + 2);
@@ -349,14 +337,21 @@ class FramePerSecond extends Sprite {
 			trace('Unable to grab CPU Name: $e');
 		}
 
+		try
+		{
+		    cpuArch = '${openfl.system.Capabilities.cpuArchitecture}_${(openfl.system.Capabilities.supports64BitProcesses ? '64' : '32')}';
+		} catch (e) {
+            trace('Unable to grab CPU Architecture: $e');
+		}
+
         try
         {
-            gpuName = GL.getParameter(GL.RENDERER);
+            gpuName = GL.getParameter(GL.RENDERER) + "\nOpenGL " + GL.getParameter(GL.VERSION);
         } catch (e) {
             trace('Unable to grab GPU Name: $e');
         }
 
-        return 'OS: ${osName}\nCPU: ${cpuName}\nGPU: ${gpuName}\nBranch: ${Main.releaseCycle}';
+        return 'OS: ${osName}\nCPU: ${cpuName} - ${cpuArch}\nGPU: ${gpuName}\nBranch: ${Main.releaseCycle}';
     }
 
     function onKeyRelease(event:KeyboardEvent):Void {
@@ -413,7 +408,7 @@ class FramePerSecond extends Sprite {
     }
 
     function set_displayDebugger(v:Bool):Bool {
-        background.height = (v ? 110 : 43);
+        background.height = (v ? 115 : 43);
         return displayDebugger = v;
     }
 }

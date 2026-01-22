@@ -5,7 +5,9 @@ import flixel.FlxG;
 import flixel.FlxState;
 import lime.app.Application;
 import openfl.Lib;
+import openfl.events.Event;
 import openfl.display.Sprite;
+import openfl.display.StageAlign;
 import openfl.display.StageScaleMode;
 
 #if linux
@@ -25,7 +27,7 @@ class Main extends Sprite
 {
 	var mainGame = {
 		width: 1280,
-		heigh: 720,
+		height: 720,
 		initialMenu: InitState,
 		fps: 60,
 		skipFlixelSplash: true
@@ -57,8 +59,10 @@ class Main extends Sprite
 		#if CRASH_HANDLER
 		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, onUncaughtError);
 		#end
+		Lib.current.stage.addEventListener(Event.RESIZE, onResize);
+		onResize(null);
 
-		addChild(new FlxGame(mainGame.width, mainGame.heigh, mainGame.initialMenu, mainGame.fps, mainGame.fps, mainGame.skipFlixelSplash));
+		addChild(new FlxGame(mainGame.width, mainGame.height, mainGame.initialMenu, mainGame.fps, mainGame.fps, mainGame.skipFlixelSplash));
 
 		// Only Linux related thing
 		#if linux
@@ -67,7 +71,7 @@ class Main extends Sprite
 		#end
 
 		fpsVar = new FramePerSecond();
-		Lib.current.stage.align = "tl";
+		Lib.current.stage.align = StageAlign.TOP_LEFT;
 		Lib.current.stage.scaleMode = StageScaleMode.NO_SCALE;
 		if (fpsVar != null) fpsVar.visible = true;
 		addChild(fpsVar);
@@ -88,7 +92,23 @@ class Main extends Sprite
 		FlxG.updateFramerate = 240;
 		FlxG.drawFramerate = 120;
 		FlxG.fixedTimestep = true;
+
+		Application.current.window.onClose.add(function() {
+			DataHandler.saveData();
+
+ 	        #if DISCORD_ALLOWED
+            DiscordClient.shutdown();
+            #end
+		});
 	}
+
+	private function onResize(e:Event):Void {
+        var stageWidth = Lib.current.stage.stageWidth;
+        var stageHeight = Lib.current.stage.stageHeight;
+
+        mainGame.width = stageWidth;
+        mainGame.height = stageHeight;
+    }
 
 	#if sys
 	function onUncaughtError(e:UncaughtErrorEvent):Void
@@ -111,8 +131,7 @@ class Main extends Sprite
 
 		var normalPath:String = Path.normalize(path);
 
-		Sys.println(stackTraceString);
-		Sys.println('Crash dump saved in $normalPath');
+		Sys.println(stackTraceString + "\n" + 'Crash dump saved in $normalPath');
 
 		// Requires because of latest Flixel!
 		#if (flixel < "6.0.0")
@@ -122,19 +141,12 @@ class Main extends Sprite
 		FlxG.bitmap.clearCache();
 
 		// It seems like "UncaughtErrorEvent" works only on release branch instead of debug since on debug it is disabled by default after many OpenFL changes
-		#if linux
+		#if (linux || mac)
 		StateHandler.switchToNewState(new CrashState(stackTraceString + '\n\nCrash log created at: "${normalPath}"!'));
 		#else
 		Application.current.window.alert(stackTraceString + "\n\nPress OK to reset game!" + randomErrorMessages[FlxG.random.int(0, randomErrorMessages.length)] + " - Sbinator v" + EngineConfiguration.gameVersion);
 		FlxG.resetGame();
-		#if DISCORD_ALLOWED
-		DiscordClient.shutdown();
 		#end
-		#end
-
-		Application.current.window.onClose.add(function() {
-			DataHandler.saveData();
-		});
 	}
 	#end
 }

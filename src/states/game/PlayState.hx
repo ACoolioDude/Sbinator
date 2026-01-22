@@ -44,10 +44,10 @@ class PlayState extends StateHandler
     public var cameraFollow:FlxObject;
 
     override public function create():Void
-    {   
+    {
         // Required for Player class file to call for player trail
         mainInstance = this;
-        
+
         // Camera related stuff
         cameraGame = new FlxCamera();
         FlxG.cameras.add(cameraGame, false);
@@ -154,7 +154,7 @@ class PlayState extends StateHandler
     }
 
     function gameOver()
-    {   
+    {
         FlxG.camera.followLerp = 0;
         persistentUpdate = false;
 		persistentDraw = true;
@@ -163,18 +163,10 @@ class PlayState extends StateHandler
         openSubState(new GameOver());
     }
 
+    #if DISCORD_ALLOWED
     function updateDiscordRPC()
     {
-        if (score == 0) {
-            #if DISCORD_ALLOWED
-		    // Updating Discord Rich Presence
-		    DiscordClient.changePresence("In Game", null);
-		    #end
-        } else {
-            #if DISCORD_ALLOWED
-		    // Updating Discord Rich Presence
-		    DiscordClient.changePresence("In Game. Current earned score: " + score, null);
-		    #end
-        }
+        if (score == 0) DiscordClient.changePresence("In Game", null) else DiscordClient.changePresence("In Game. Current earned score: " + score, null);
     }
+    #end
 }

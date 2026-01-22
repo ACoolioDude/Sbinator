@@ -136,9 +136,6 @@ class CrashState extends StateHandler
                     Application.current.window.title = "Sbinator";
                     FlxG.resetGame();
                 case EXIT:
-                    #if DISCORD_ALLOWED
-                    DiscordClient.shutdown();
-		            #end
                     lime.system.System.exit(0);
             }
         });
