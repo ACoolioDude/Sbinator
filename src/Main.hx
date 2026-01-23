@@ -64,7 +64,6 @@ class Main extends Sprite
 
 		addChild(new FlxGame(mainGame.width, mainGame.height, mainGame.initialMenu, mainGame.fps, mainGame.fps, mainGame.skipFlixelSplash));
 
-		// Only Linux related thing
 		#if linux
 		var icon = Image.fromFile("icon.png");
 		Lib.current.stage.window.setIcon(icon);

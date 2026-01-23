@@ -3,229 +3,190 @@ name: Build
 
 on:
   push:
-      branches: [main]
+    branches: [main]
   workflow_dispatch:
 
 jobs:
-    Linux:
-      runs-on: ubuntu-24.04
-      permissions: write-all
+  Linux:
+    runs-on: ubuntu-24.04
+    permissions: write-all
 
-      steps:
-        - uses: actions/checkout@v4
+    steps:
+      - uses: actions/checkout@v4
 
-        - uses: krdlab/setup-haxe@v2
-          with:
-            haxe-version: 4.3.7
-        
-        - name: Restore current build cache for faster compiling
-          uses: actions/cache@v4.2.3
-          with:
-            key: cache-build-linux
-            path: |
-              .haxelib/
-              export/release/linux/haxe/
-              export/release/linux/obj/
-            run: |
-             echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
-        
-        - name: Install VLC libs
+      - uses: krdlab/setup-haxe@v2
+        with:
+          haxe-version: 4.3.7
+
+      - name: Restore current build cache for faster compiling
+        uses: actions/cache@v4.2.3
+        with:
+          key: cache-build-linux
+          path: |
+            .haxelib/
+            export/release/linux/haxe/
+            export/release/linux/obj/
           run: |
-            sudo apt-get install libvlc-dev libvlccore-dev -y
+            echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
 
-        - name: Install required Haxelib libs
-          run: |
-            haxelib setup ~/haxelib
-            haxelib install flixel
-            haxelib install flixel-addons
-            haxelib install flixel-ui
-            haxelib install lime
-            haxelib install openfl
-            haxelib git hxcpp https://github.com/HaxeFoundation/hxcpp.git
-            haxelib run lime rebuild hxcpp
-            haxelib install hxdiscord_rpc
-        
-        - name: Create Version Tag
-          run: echo "${{github.run_id}} > VERSION"
+      - name: Install VLC libs
+        run: |
+          sudo apt-get install libvlc-dev libvlccore-dev -y
 
-        - name: Compile and build
-          run: haxelib run lime build linux
+      - name: Install required Haxelib libs
+        run: |
+          haxelib setup ~/haxelib
+          haxelib install flixel
+          haxelib install flixel-addons
+          haxelib install flixel-ui
+          haxelib install lime
+          haxelib install openfl
+          haxelib git hxcpp https://github.com/HaxeFoundation/hxcpp.git
+          haxelib run lime rebuild hxcpp
+          haxelib install hxdiscord_rpc
 
-        - name: Publish main artifacts
-          uses: actions/upload-artifact@v4
-          with:
-            name: Sbinator_Linux_build
-            path: 'export/release/linux/bin'
+      - name: Create Version Tag
+        run: echo "${{github.run_id}} > VERSION"
 
-        - name: Clearing new existing cache
-          uses: actions/github-script@v6
-          with:
-            script: |
-              const caches = await github.rest.actions.getActionsCacheList({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-              })
-              for (const cache of caches.data.actions_caches) {
-                if (cache.key == "cache-build-linux") {
-                  console.log('Clearing ' + cache.key + '...')
-                  await github.rest.actions.deleteActionsCacheById({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    cache_id: cache.id,
-                  })
-                  console.log("Cache cleared.")
-                }
+      - name: Compile and build
+        run: haxelib run lime build linux
+
+      - name: Publish main artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Sbinator_Linux_build
+          path: "export/release/linux/bin"
+
+      - name: Clearing new existing cache
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const caches = await github.rest.actions.getActionsCacheList({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            })
+            for (const cache of caches.data.actions_caches) {
+              if (cache.key == "cache-build-linux") {
+                console.log('Clearing ' + cache.key + '...')
+                await github.rest.actions.deleteActionsCacheById({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  cache_id: cache.id,
+                })
+                console.log("Cache cleared.")
               }
-        - name: Uploading new cache
-          uses: actions/cache@v4.2.3
-          with:
-            key: cache-build-linux
-            path: |
-              .haxelib/
-              export/release/linux/haxe/
-              export/release/linux/obj/
+            }
+      - name: Uploading new cache
+        uses: actions/cache@v4.2.3
+        with:
+          key: cache-build-linux
+          path: |
+            .haxelib/
+            export/release/linux/haxe/
+            export/release/linux/obj/
 
-    MacOS:
-      runs-on: macos-15
+  MacOS:
+    runs-on: macos-15
 
-      steps:
-        - uses: actions/checkout@v4
+    steps:
+      - uses: actions/checkout@v4
 
-        - uses: krdlab/setup-haxe@v2
-          with:
-            haxe-version: 4.3.7
+      - uses: krdlab/setup-haxe@v2
+        with:
+          haxe-version: 4.3.7
 
-        - name: Restore current build cache for faster compiling
-          uses: actions/cache@v4.2.3
-          with:
-            key: cache-build-mac
-            path: |
-              .haxelib/
-              export/release/macos/haxe/
-              export/release/macos/obj/
-        - run: |
-           echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
-          
-        - name: Install required Haxelib libs
-          run: |
-            haxelib setup ~/haxelib
-            haxelib install flixel
-            haxelib install flixel-addons
-            haxelib install flixel-ui
-            haxelib install lime
-            haxelib install openfl
-            haxelib install hxcpp
-            haxelib install hxdiscord_rpc
-          
-        - name: Create version tag
-          run: echo "${{github.run_id}}" > VERSION
-          
-        - name: Compile and build
-          run: haxelib run lime build mac
-          
-        - name: Publish main artifact
-          uses: actions/upload-artifact@v4
-          with:
-            name: Sbinator_MacOS_build
-            path: export/release/macos/bin
-        
-        - name: Clearing new existing cache
-          uses: actions/github-script@v6
-          with:
-            script: |
-              const caches = await github.rest.actions.getActionsCacheList({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-              })
-              for (const cache of caches.data.actions_caches) {
-                if (cache.key == "cache-build-mac") {
-                  console.log('Clearing ' + cache.key + '...')
-                  await github.rest.actions.deleteActionsCacheById({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    cache_id: cache.id,
-                  })
-                  console.log("Cache cleared.")
-                }
-              }
+      - name: Restore current build cache for faster compiling
+        uses: actions/cache@v4.2.3
+        with:
+          key: cache-build-mac
+          path: |
+            .haxelib/
+            export/release/macos/haxe/
+            export/release/macos/obj/
+      - run: |
+          echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
 
-        - name: Uploading new cache
-          uses: actions/cache@v4.2.3
-          with:
-            key: cache-build-mac
-            path: |
-              .haxelib/
-              export/release/macos/haxe/
-              export/release/macos/obj/
+      - name: Install required Haxelib libs
+        run: |
+          haxelib setup ~/haxelib
+          haxelib install flixel
+          haxelib install flixel-addons
+          haxelib install flixel-ui
+          haxelib install lime
+          haxelib install openfl
+          haxelib install hxcpp
+          haxelib install hxdiscord_rpc
 
-    Windows:
-      runs-on: windows-latest
+      - name: Create version tag
+        run: echo "${{github.run_id}}" > VERSION
 
-      steps:
-        - uses: actions/checkout@v4
+      - name: Compile and build
+        run: haxelib run lime build mac
 
-        - uses: krdlab/setup-haxe@v2
-          with:
-            haxe-version: 4.3.7
+      - name: Publish main artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Sbinator_MacOS_build
+          path: export/release/macos/bin
 
-        - name: Restore current build cache for faster compiling
-          uses: actions/cache@v4.2.3
-          with:
-            key: cache-build-windows
-            path: |
-              .haxelib/
-              export/release/windows/haxe/
-              export/release/windows/obj/
-        - run: |
-           echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
-          
-        - name: Install required Haxelib libs
-          run: |
-            haxelib setup C:/haxelib
-            haxelib install flixel
-            haxelib install flixel-addons
-            haxelib install flixel-ui
-            haxelib install lime
-            haxelib install openfl
-            haxelib install hxcpp
-            haxelib install hxdiscord_rpc
-          
-        - name: Create version tag
-          run: echo "${{github.run_id}}" > VERSION
-          
-        - name: Compile and build
-          run: haxelib run lime build windows
-          
-        - name: Publish main artifact
-          uses: actions/upload-artifact@v4
-          with:
-            name: Sbinator_Windows_build
-            path: export/release/windows/bin
-        
-        - name: Clearing new existing cache
-          uses: actions/github-script@v6
-          with:
-            script: |
-              const caches = await github.rest.actions.getActionsCacheList({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-              })
-              for (const cache of caches.data.actions_caches) {
-                if (cache.key == "cache-build-windows") {
-                  console.log('Clearing ' + cache.key + '...')
-                  await github.rest.actions.deleteActionsCacheById({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    cache_id: cache.id,
-                  })
-                  console.log("Cache cleared.")
-                }
-              }
-        - name: Uploading new cache
-          uses: actions/cache@v4.2.3
-          with:
-            key: cache-build-windows
-            path: |
-              .haxelib/
-              export/release/windows/haxe/
-              export/release/windows/obj
+      - name: Uploading new cache
+        uses: actions/cache@v4.2.3
+        with:
+          key: cache-build-mac
+          path: |
+            .haxelib/
+            export/release/macos/haxe/
+            export/release/macos/obj/
+
+  Windows:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: krdlab/setup-haxe@v2
+        with:
+          haxe-version: 4.3.7
+
+      - name: Restore current build cache for faster compiling
+        uses: actions/cache@v4.2.3
+        with:
+          key: cache-build-windows
+          path: |
+            .haxelib/
+            export/release/windows/haxe/
+            export/release/windows/obj/
+      - run: |
+          echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
+
+      - name: Install required Haxelib libs
+        run: |
+          haxelib setup C:/haxelib
+          haxelib install flixel
+          haxelib install flixel-addons
+          haxelib install flixel-ui
+          haxelib install lime
+          haxelib install openfl
+          haxelib install hxcpp
+          haxelib install hxdiscord_rpc
+
+      - name: Create version tag
+        run: echo "${{github.run_id}}" > VERSION
+
+      - name: Compile and build
+        run: haxelib run lime build windows
+
+      - name: Publish main artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Sbinator_Windows_build
+          path: export/release/windows/bin
+
+      - name: Uploading new cache
+        uses: actions/cache@v4.2.3
+        with:
+          key: cache-build-windows
+          path: |
+            .haxelib/
+            export/release/windows/haxe/
+            export/release/windows/obj
