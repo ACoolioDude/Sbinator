@@ -254,6 +254,7 @@ class DEDetector {
     public static function getDEVersion(version:String):String {
         switch (version.toUpperCase()) {
             case "GNOME": return parse(run("gnome-shell", ["--version"]));
+            case "Cinnamon": return parse(run("cinnamon-session", ["--version"]));
             case "KDE": return parse(run("plasmashell", ["--version"]));
             case "XFCE": return parse(run("xfce4-session", ["--version"]));
             case "LXQT": return parse(run("lxqt-session", ["--version"]));
@@ -270,8 +271,8 @@ class DEDetector {
         if (desktop.indexOf("kde") != -1) return "KWin";
         if (desktop.indexOf("gnome") != -1) return "Mutter";
         if (desktop.indexOf("xfce") != -1) return "Xfwm4";
-        if (desktop.indexOf("lxqt") != -1) return "Openbox";
-        if (desktop.indexOf("lxde") != -1) return "Openbox";
+        if (desktop.indexOf("cinnamon") != -1) return "Muffin";
+        if (desktop.indexOf("lxqt") | desktop.indexOf("lxde") != -1) return "Openbox";
 
         return "Unknown";
     }
@@ -305,6 +306,7 @@ class DEDetector {
         clean = StringTools.replace(clean, "plasmashell", "");
         clean = StringTools.replace(clean, "gnome-shell", "");
         clean = StringTools.replace(clean, "xfce4-session", "");
+        clean = StringTools.replace(clean, "cinnamon-session", "");
         clean = StringTools.replace(clean, "lxqt-session", "");
         clean = clean.trim();
 
