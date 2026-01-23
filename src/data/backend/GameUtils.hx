@@ -253,17 +253,40 @@ class DEDetector {
 
     public static function getDEVersion(version:String):String {
         switch (version.toUpperCase()) {
-            case "GNOME":
-                return parse(run("gnome-shell", ["--version"]));
-            case "KDE":
-                return parse(run("plasmashell", ["--version"]));
-            case "XFCE":
-                return parse(run("xfce4-session", ["--version"]));
-            case "LXQT":
-                return parse(run("lxqt-session", ["--version"]));
-            default:
-                return "Unknown";
+            case "GNOME": return parse(run("gnome-shell", ["--version"]));
+            case "KDE": return parse(run("plasmashell", ["--version"]));
+            case "XFCE": return parse(run("xfce4-session", ["--version"]));
+            case "LXQT": return parse(run("lxqt-session", ["--version"]));
+            default: return "Unknown";
         }
+    }
+
+    public static function getWMInfo():String {
+        var desktop = Sys.getEnv("XDG_CURRENT_DESKTOP");
+        if (desktop == null) desktop = "";
+
+        desktop = desktop.toLowerCase();
+
+        if (desktop.indexOf("kde") != -1) return "KWin";
+        if (desktop.indexOf("gnome") != -1) return "Mutter";
+        if (desktop.indexOf("xfce") != -1) return "Xfwm4";
+        if (desktop.indexOf("lxqt") != -1) return "Openbox";
+        if (desktop.indexOf("lxde") != -1) return "Openbox";
+
+        return "Unknown";
+    }
+
+    public static function getSessionInfo():String {
+        var raw = Sys.getEnv("XDG_SESSION_TYPE");
+
+        var session:String = switch (raw) {
+            case "wayland": "Wayland";
+            case "x11": "X11";
+            case null | "": "Unknown";
+            default: "Unknown";
+        };
+
+        return session;
     }
 
     static function run(command:String, arguments:Array<String>):String {

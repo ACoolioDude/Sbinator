@@ -301,7 +301,7 @@ class FramePerSecond extends Sprite {
 				}
 			}
 
-			if (distroName != "") osName = '${distroName} ${osVersion}'.trim() + " - " + DEDetector.de + " v" + DEDetector.version;
+			if (distroName != "") osName = '${distroName} ${osVersion}'.trim() + " - " + DEDetector.de + " v" + DEDetector.version + " (" + DEDetector.getWMInfo() + " - " + DEDetector.getSessionInfo() + ")";
 		    }
             #else
             osName = lime.system.System.platformLabel.replace(lime.system.System.platformVersion, "").trim() + " - " + lime.system.System.platformVersion;
