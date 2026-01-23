@@ -23,12 +23,12 @@ PACKAGE_TO_INSTALL="haxe" # Haxe package
 
 case "$DISTRO" in
     "debian")
-        echo Detected Debian-based system. Installing Haxe from Debian"'"s main repository.
+        echo Detected Debian-based system. Installing Haxe from Debian"'"s APT repository.
         sudo apt-get update
         sudo apt-get install "$PACKAGE_TO_INSTALL"
         ;;
     "fedora")
-        echo Detected Fedora-based system. Installing Haxe from Fedora"'"s main repository.
+        echo Detected Fedora-based system. Installing Haxe from Fedora"'"s RPM repository.
         sudo dnf install "$PACKAGE_TO_INSTALL"
         ;;
     "arch")
@@ -40,7 +40,7 @@ case "$DISTRO" in
         sudo zypper install "$PACKAGE_TO_INSTALL"
         ;;
     "solus")
-        echo Detected SolusOS-based system. Installing Haxe from Solus repository
+        echo Detected SolusOS-based system. Installing Haxe from Solus EOPKG repository
         sudo eopkg install "$PACKAGE_TO_INSTALL"
         ;;
     *)
