@@ -19,29 +19,34 @@ else
     exit 1
 fi
 
-PACKAGE_TO_INSTALL="haxe" # Haxe package
+HAXE_PACKAGE="haxe" # Haxe package
+GPP_PACKAGE="g++" # G++/Clang package
 
 case "$DISTRO" in
     "debian")
         echo Detected Debian-based system. Installing Haxe from Debian"'"s APT repository.
         sudo apt-get update
-        sudo apt-get install "$PACKAGE_TO_INSTALL"
+        sudo apt-get install "$HAXE_PACKAGE" "$GPP_PACKAGE" -y
         ;;
     "fedora")
         echo Detected Fedora-based system. Installing Haxe from Fedora"'"s RPM repository.
-        sudo dnf install "$PACKAGE_TO_INSTALL"
+        sudo dnf update
+        sudo dnf upgrade
+        sudo dnf install "$HAXE_PACKAGE" "$GPP_PACKAGE" -y
         ;;
     "arch")
-        echo Detected Arch-based system. Installing Haxe from Arch extra repository .
-        sudo pacman -S "$PACKAGE_TO_INSTALL"
+        echo Detected Arch-based system. Installing Haxe from Arch extra repository.
+        sudo pacman -Syu
+        sudo pacman -S "$HAXE_PACKAGE" "$GPP_PACKAGE" --noconfirm
         ;;
     "opensuse")
         echo Detected openSUSE-based system. Installing Haxe from openSUSE"'"s software repository
-        sudo zypper install "$PACKAGE_TO_INSTALL"
+        sudo zypper install "$HAXE_PACKAGE" "$GPP_PACKAGE"
         ;;
     "solus")
         echo Detected SolusOS-based system. Installing Haxe from Solus EOPKG repository
-        sudo eopkg install "$PACKAGE_TO_INSTALL"
+        sudo eopkg up
+        sudo eopkg install "$HAXE_PACKAGE" "$GPP_PACKAGE"
         ;;
     *)
         echo "No specific package manager found for $DISTRO."
