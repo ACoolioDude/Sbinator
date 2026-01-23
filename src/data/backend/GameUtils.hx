@@ -258,11 +258,9 @@ class DEDetector {
             case "KDE":
                 return parse(run("plasmashell", ["--version"]));
             case "XFCE":
-                return parse(run("xfce4-panel", ["--version"]));
+                return parse(run("xfce4-session", ["--version"]));
             case "LXQT":
                 return parse(run("lxqt-session", ["--version"]));
-            case "LXDE":
-                return parse(run("lxsession", ["--version"]));
             default:
                 return "Unknown";
         }
