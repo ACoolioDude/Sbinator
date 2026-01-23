@@ -258,7 +258,7 @@ class DEDetector {
             case "KDE": return parse(run("plasmashell", ["--version"]));
             case "XFCE": return parse(run("xfce4-session", ["--version"]));
             case "LXQT": return parse(run("lxqt-session", ["--version"]));
-            default: return "Unknown";
+            default: return "";
         }
     }
 
@@ -283,8 +283,8 @@ class DEDetector {
         var session:String = switch (raw) {
             case "wayland": "Wayland";
             case "x11": "X11";
-            case null | "": "Unknown";
-            default: "Unknown";
+            case null | "": "";
+            default: "";
         };
 
         return session;
