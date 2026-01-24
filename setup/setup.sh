@@ -37,7 +37,7 @@ case "$DISTRO" in
     "arch")
         echo Detected Arch-based system. Installing Haxe from Arch extra repository.
         sudo pacman -Syu
-        sudo pacman -S "$HAXE_PACKAGE" "$GPP_PACKAGE" --noconfirm
+        sudo pacman -S "$HAXE_PACKAGE" --noconfirm
         ;;
     "opensuse")
         echo Detected openSUSE-based system. Installing Haxe from openSUSE"'"s software repository
