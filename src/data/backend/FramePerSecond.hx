@@ -259,7 +259,7 @@ class FramePerSecond extends Sprite {
     }
 
     // Credits for CNE (Codename Engine) devs for this working code!
-    public function getDebug():String {
+    public static function getDebug():String {
         static var osName:String = "Unknown";
         static var cpuName:String = "Unknown";
         static var cpuArch:String = "Unknown";
