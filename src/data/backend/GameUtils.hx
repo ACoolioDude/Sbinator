@@ -19,6 +19,7 @@ import openfl.utils.Assets;
 #if sys
 import sys.FileSystem;
 import sys.io.File;
+import sys.io.Process;
 #end
 
 using StringTools;
@@ -224,7 +225,7 @@ class DataHandler
 
 // Actual working DE/WM detector!
 #if linux
-class DEDetector {
+class LinuxHandler {
 
     public static var de:String;
     public static var version:String;

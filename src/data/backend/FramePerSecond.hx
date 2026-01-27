@@ -122,7 +122,7 @@ class FramePerSecond extends Sprite {
         #end
 
         #if linux
-        DEDetector.init();
+        LinuxHandler.init();
         #end
     }
 
@@ -301,7 +301,7 @@ class FramePerSecond extends Sprite {
 				}
 			}
 
-			if (distroName != "") osName = '${distroName} ${osVersion}'.trim() + " - " + DEDetector.de + " v" + DEDetector.version + " (" + DEDetector.getWMInfo() + " - " + DEDetector.getSessionInfo() + ")";
+			if (distroName != "") osName = '${distroName} ${osVersion}'.trim() + " - " + LinuxHandler.de + " v" + LinuxHandler.version + " (" + LinuxHandler.getWMInfo() + " - " + LinuxHandler.getSessionInfo() + ");
 		    }
             #else
             osName = lime.system.System.platformLabel.replace(lime.system.System.platformVersion, "").trim() + " - " + lime.system.System.platformVersion;
