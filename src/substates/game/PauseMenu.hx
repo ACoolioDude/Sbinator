@@ -107,12 +107,12 @@ class PauseMenu extends SubstateHandler
         if (FlxG.mouse.overlaps(resumeButton, PlayState.mainInstance.uiGameGroup.camera) && confirmed)
         {
             if (FlxG.mouse.justPressed) close();
-        } 
+        }
         else if (FlxG.keys.justPressed.ESCAPE)
         {
             close();
         }
-        
+
         if (FlxG.mouse.overlaps(resetButton, PlayState.mainInstance.uiGameGroup.camera) && confirmed)
         {
             if (FlxG.mouse.justPressed) FlxG.resetState();
