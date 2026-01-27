@@ -19,7 +19,6 @@ import openfl.utils.Assets;
 #if sys
 import sys.FileSystem;
 import sys.io.File;
-import sys.io.Process;
 #end
 
 using StringTools;
