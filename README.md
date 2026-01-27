@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/Stefan2008Git/Sbinator/refs/heads/main/assets/images/mainMenu/logo.png" alt="Sbinator logo"></img>
+  <img src="https://raw.githubusercontent.com/Stefan2008Git/Sbinator/refs/heads/main/assets/images/mainMenu/logo.png" width="600">
   <br/>
   <h1 align="center">Sbinator</h1>
   <p align="center">A game made with HaxeFlixel game engine. </p>
@@ -8,6 +8,10 @@
 
 <details>
     <summary>Sbinator game preview</summary>
+
+<h1 align="center">Loading screen</h1>
+<img src="https://raw.githubusercontent.com/ACoolioDude/Sbinator/refs/heads/main/sbinator/previews/init_screen.png"></img>
+
 <h1 align="center">Main menu (title menu)</h1>
 <img src="https://raw.githubusercontent.com/ACoolioDude/Sbinator/refs/heads/main/sbinator/previews/title_menu.png"></img>
 
