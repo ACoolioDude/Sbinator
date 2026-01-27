@@ -11,6 +11,7 @@ import data.backend.GameUtils.DEDetector;
 #end
 import data.backend.FramePerSecond;
 import data.backend.HiddenProcess;
+import data.backend.macro.GitHub;
 import transition.Transition;
 import transition.StateHandler;
 import transition.SubstateHandler;

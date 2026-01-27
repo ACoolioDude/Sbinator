@@ -351,7 +351,7 @@ class FramePerSecond extends Sprite {
             trace('Unable to grab GPU Name: $e');
         }
 
-        return 'OS: ${osName}\nCPU: ${cpuName} - ${cpuArch}\nGPU: ${gpuName}\nBranch: ${Main.releaseCycle}';
+        return 'OS: ${osName}\nCPU: ${cpuName} - ${cpuArch}\nGPU: ${gpuName}\nBranch: ${Main.releaseCycle} - (Commit v${GitHub.getGitCommitHash()} - ${GitHub.getGitBranch()})';
     }
 
     function onKeyRelease(event:KeyboardEvent):Void {

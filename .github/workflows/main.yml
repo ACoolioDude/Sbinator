@@ -36,6 +36,7 @@ jobs:
       - name: Install required Haxelib libs
         run: |
           haxelib setup ~/haxelib
+          haxelib --global update haxelib
           haxelib install flixel
           haxelib install flixel-addons
           haxelib install flixel-ui
@@ -44,6 +45,7 @@ jobs:
           haxelib git hxcpp https://github.com/HaxeFoundation/hxcpp.git
           haxelib run lime rebuild hxcpp
           haxelib install hxdiscord_rpc
+          haxelib fixrepo
 
       - name: Create Version Tag
         run: echo "${{github.run_id}} > VERSION"
@@ -109,6 +111,7 @@ jobs:
       - name: Install required Haxelib libs
         run: |
           haxelib setup ~/haxelib
+          haxelib --global update haxelib
           haxelib install flixel
           haxelib install flixel-addons
           haxelib install flixel-ui
@@ -116,6 +119,7 @@ jobs:
           haxelib install openfl
           haxelib install hxcpp
           haxelib install hxdiscord_rpc
+          haxelib fixrepo
 
       - name: Create version tag
         run: echo "${{github.run_id}}" > VERSION
@@ -162,6 +166,7 @@ jobs:
       - name: Install required Haxelib libs
         run: |
           haxelib setup C:/haxelib
+          haxelib --global update haxelib
           haxelib install flixel
           haxelib install flixel-addons
           haxelib install flixel-ui
@@ -169,6 +174,7 @@ jobs:
           haxelib install openfl
           haxelib install hxcpp
           haxelib install hxdiscord_rpc
+          haxelib fixrepo
 
       - name: Create version tag
         run: echo "${{github.run_id}}" > VERSION

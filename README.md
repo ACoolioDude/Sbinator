@@ -30,5 +30,5 @@
 # Credits:
 | Avatar | Username | Involvement |
 | ------ | -------- | ----------- |
-| ![](https://yt3.googleusercontent.com/Grj17tg0O08GFQMCEPsYjlNd99k_NoFl2xb4MNYV4PaCaonWR5r0GyH3opn-nHh-chx4Sm4l9BI=s160-c-k-c0x00ffffff-no-rj) | [Stefan2008](https://www.youtube.com/channel/UC9Nwf21GbaEm_h0Ka9gxZjQ) | Creator of Sbinator.
+| ![](https://yt3.googleusercontent.com/Grj17tg0O08GFQMCEPsYjlNd99k_NoFl2xb4MNYV4PaCaonWR5r0GyH3opn-nHh-chx4Sm4l9BI=s160-c-k-c0x00ffffff-no-rj) | [ACoolioDude](https://www.youtube.com/channel/UC9Nwf21GbaEm_h0Ka9gxZjQ) | Creator of Sbinator.
 | ![](https://yt3.googleusercontent.com/4-v_2TLoa81STcBgCIdvNOOIBMimvqDs4GB2jdd9dlOeQORmZMWt6Qw2_2ONF9wJtso5eDnTLvA=s160-c-k-c0x00ffffff-no-rj) | [Core5570R](https://www.youtube.com/@core5570r) | For pop-up code.

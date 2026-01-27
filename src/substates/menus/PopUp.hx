@@ -106,7 +106,7 @@ class PopUpEvent extends FlxSubState
 	function createBoxUI()
 	{
         titleS = FlxSpriteUtil.drawRoundRectComplex(new FlxSprite().makeGraphic(Std.int(box.width), 32, FlxColor.TRANSPARENT), 0, 0, Std.int(box.width), 32, 5,
-            5, 0, 0, 0xFF8b0000);
+            5, 0, 0, 0xFFcd5e00);
         titleS.setPosition(box.x, box.y);
         titleS.alpha = 0.9;
         add(titleS);
@@ -132,7 +132,7 @@ class PopUpEvent extends FlxSubState
 
         for (i in 0...buttons.length){
             var button:PopUpButtons = new PopUpButtons(0,0,buttons[i].text, buttons[i].callback);
-            button.x = box.x + 20 + (button.bWidth * i);//((box.width / 2)-(button.bWidth/2))-(button.bWidth*i);
+            button.x = box.x + 20 + (button.bWidth * i);
             button.y = (box.y - button.bHeight) - 20;
             add(button);
             button.scrollFactor.set();
@@ -140,7 +140,6 @@ class PopUpEvent extends FlxSubState
         }
 
         for (i in 0...buttonsCrap.length){
-            //(box.x+(box.width / 2)-(buttonsCrap[i].bWidth/2))-20-(buttonsCrap[i].bWidth*i);
             var oldButtWidth = (buttonsCrap[i-1] == null ? 0 : buttonsCrap[i-1].bWidth);
             buttonsCrap[i].x = box.x + ((box.width-(buttonsCrap[i].bWidth + (oldButtWidth + 20))));
             buttonsCrap[i].y = (box.y+box.height - buttonsCrap[i].bHeight) - 20;

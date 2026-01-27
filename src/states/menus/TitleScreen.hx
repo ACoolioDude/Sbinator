@@ -88,7 +88,7 @@ class TitleScreen extends StateHandler
 
         gameLogo = new FlxSprite(0, -150).loadGraphic(Paths.imagePath("mainMenu/logo"));
         gameLogo.scrollFactor.set();
-        gameLogo.scale.set(1.4, 1.4);
+        gameLogo.scale.set(0.4, 0.4);
         gameLogo.updateHitbox();
         gameLogo.screenCenter(X);
         add(gameLogo);
@@ -118,7 +118,7 @@ class TitleScreen extends StateHandler
         });
 
         new FlxTimer().start(1.9, function(tmr:FlxTimer) {
-            FlxTween.tween(gameLogo, {y: 80}, 2, {ease: FlxEase.expoInOut});
+            FlxTween.tween(gameLogo, {y: 100}, 2, {ease: FlxEase.expoInOut});
         });
 
         new FlxTimer().start(3, function(tmr:FlxTimer) {

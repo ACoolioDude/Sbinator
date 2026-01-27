@@ -67,6 +67,7 @@ class InitState extends FlxState
 		sbinator.scrollFactor.set();
 		sbinator.screenCenter();
 		sbinator.alpha = 0;
+		sbinator.scale.set(0.3, 0.3);
 		sbinator.active = false;
 		add(sbinator);
 
@@ -86,7 +87,7 @@ class InitState extends FlxState
         loadingBarBG.active = false;
         add(loadingBarBG);
 
-        loadingBar = new FlxSprite(loadingBarBG.x + 5, loadingBarBG.y + 5).makeGraphic(1, 1, FlxColor.ORANGE);
+        loadingBar = new FlxSprite(loadingBarBG.x + 5, loadingBarBG.y + 5).makeGraphic(1, 1, 0xFFcd5e00);
 		loadingBar.scale.set(0, 15);
 		loadingBar.updateHitbox();
         loadingBar.alpha = 0;
@@ -121,7 +122,7 @@ class InitState extends FlxState
             loadingBar.alpha = 1;
             loadingBar.active = true;
 
-            FlxTween.tween(sbinator, {alpha: 1, "scale.x": 1.5, "scale.y": 1.5}, 2, {ease: FlxEase.expoInOut, onComplete: _ -> onCachingInit()});
+            FlxTween.tween(sbinator, {alpha: 1, "scale.x": 0.4, "scale.y": 0.4}, 2, {ease: FlxEase.expoInOut, onComplete: _ -> onCachingInit()});
         });
     }
 
