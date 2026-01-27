@@ -12,7 +12,7 @@ class Player extends FlxSprite
     {
         super(xPosition, yPosition, Paths.imagePath("game/in-game/stefan"));
         // frames = FlxAtlasFrames.fromSparrow("assets/images/game/in-game/stefan.png", "assets/images/game/in-game/stefan.xml");
-        
+
         drag.x = speedValue + 8;
 
         acceleration.y = gravityValue;
@@ -92,7 +92,7 @@ class Player extends FlxSprite
 		{
             velocity.y = -180;
             FlxG.sound.play("assets/sounds/jump.ogg");
-            PlayState.mainInstance.score += 1;
+            PlayState.mainInstance.score += 10;
         }
     }
 }

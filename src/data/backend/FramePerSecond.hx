@@ -100,7 +100,7 @@ class FramePerSecond extends Sprite {
         addChild(background);
 
         text = new TextField();
-        text.defaultTextFormat = new TextFormat(Paths.fontPath("bahnschrift.ttf"), 13, FlxColor.WHITE);
+        text.defaultTextFormat = new TextFormat(Paths.fontPath("arial.ttf"), 13, FlxColor.WHITE);
         text.selectable = false;
         text.autoSize = LEFT;
         addChild(text);

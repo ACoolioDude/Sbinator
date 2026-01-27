@@ -17,14 +17,14 @@ class OptionsMenu extends SubstateHandler
     var textSine:Float = 0;
 
     override function create()
-    {   
+    {
         #if DISCORD_ALLOWED
 		// Updating Discord Rich Presence
 		DiscordClient.changePresence("In Options Menu", null);
 		#end
 
         bg = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
-		bg.alpha = 0.8;
+		bg.alpha = 0.5;
 		add(bg);
 
         text = new FlxText(0, 0, "UNFINISHED (W.I.P)!", 16);
@@ -38,7 +38,7 @@ class OptionsMenu extends SubstateHandler
 
     override function update(elapsed:Float)
     {
-        // Sine text  
+        // Sine text
         textSine += 180 * elapsed;
         text.alpha = 1 - Math.sin((Math.PI * textSine) / 180);
 

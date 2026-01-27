@@ -16,6 +16,7 @@ import flixel.ui.FlxBar;
 import flixel.util.FlxCollision;
 import flixel.util.FlxColor;
 import flixel.util.FlxSpriteUtil;
+import flixel.util.FlxTimer;
 
 class PlayState extends StateHandler
 {
@@ -24,14 +25,19 @@ class PlayState extends StateHandler
     var bg2:FlxSprite;
     public var player:Player;
     public var playerTrail:FlxTrail;
+    var healthTypeGraphic:FlxSprite;
     var bar:FlxSprite;
     var icon:FlxSprite;
-    var scoreText:FlxText;
+    var iconX:Float;
+    var iconY:Float;
+    var shaking:Bool = false;
+    var shakeIntensity:Int = 5;
+    var uiText:FlxText;
     public var score:Int = 0;
     var healthBarSprite:FlxSprite;
     var healthBar:FlxBar;
     var health:Float = 1;
-    var maxHealth:Float = 2;
+    var maxHealth:Float = 1;
 
     // Backend
     var levelBound:FlxGroup;
@@ -96,21 +102,27 @@ class PlayState extends StateHandler
 
     inline public function initInGameUI()
     {
-        bar = FlxSpriteUtil.drawRoundRect(new FlxSprite(80, 645).makeGraphic(400, 40, FlxColor.TRANSPARENT), 0, 0, 200, 40, 10, 10, FlxColor.BLACK);
+        healthTypeGraphic = new FlxSprite(0, 0).makeGraphic(FlxG.width, FlxG.height, FlxColor.WHITE);
+        healthTypeGraphic.alpha = 0;
+        uiGameGroup.add(healthTypeGraphic);
+
+        bar = FlxSpriteUtil.drawRoundRect(new FlxSprite(80, 645).makeGraphic(300, 40, FlxColor.TRANSPARENT), 0, 0, 300, 40, 10, 10, FlxColor.BLACK);
         bar.alpha = 0.6;
         bar.updateHitbox();
         uiGameGroup.add(bar);
 
-        scoreText = new FlxText(150, bar.y + 5, FlxG.width, "Score: 0", 12);
-        scoreText.setFormat(Paths.fontPath("bahnschrift.ttf"), 20, FlxColor.WHITE, FlxTextAlign.LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-        scoreText.borderSize = 2;
-        scoreText.borderQuality = 2;
-        scoreText.text = "Score: 0";
-        uiGameGroup.add(scoreText);
+        uiText = new FlxText(150, bar.y + 5, FlxG.width, "", 12);
+        uiText.setFormat(Paths.fontPath("bahnschrift.ttf"), 20, FlxColor.WHITE, FlxTextAlign.LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+        uiText.borderSize = 2;
+        uiText.borderQuality = 2;
+        uiText.text = "Score: 0 / Health: 100%";
+        uiGameGroup.add(uiText);
 
         icon = new FlxSprite(15, bar.y + -45).loadGraphic(Paths.imagePath("game/in-game/icon-stefan"));
         icon.scale.set(0.4, 0.4);
         icon.updateHitbox();
+        iconX = icon.x;
+        iconY = icon.y;
         uiGameGroup.add(icon);
 
         healthBarSprite = new FlxSprite(0, FlxG.height * 0.9).loadGraphic(Paths.imagePath("game/in-game/health"));
@@ -134,14 +146,50 @@ class PlayState extends StateHandler
 
 		if (justPressed.ESCAPE) pauseTheGame();
 
-        if (justPressed.X) health -= 0.1 else if (justPressed.P) health += 0.1;
-        if (health <= 0) gameOver();
+        if (justPressed.X) damageTaken(0.1) else if (justPressed.P) healthGain(0.1);
 
-		scoreText.text = "Score: " + score;
+		uiText.text = 'Score: ${score} / Health: ${Std.int(health * 100)}%';
+		healthBar.value = health;
+
+		if (shaking) {
+		    icon.y = 646 + (FlxG.random.float(-shakeIntensity, shakeIntensity));
+		} else {
+		    icon.y = iconY;
+		}
 
         updateDiscordRPC();
 
         super.update(elapsed);
+    }
+
+    function damageTaken(amount:Float)
+    {
+        health -= amount;
+        if (health <= 0) gameOver();
+        score -= 10;
+
+        shaking = true;
+        new FlxTimer().start(0.3, function(tmr:FlxTimer) {
+            shaking = false;
+        });
+
+        healthTypeGraphic.alpha = 0.5;
+        healthTypeGraphic.color = FlxColor.RED;
+        FlxTween.tween(healthTypeGraphic, {alpha: 0}, 0.2);
+        FlxTween.tween(healthBar, {value: health}, 0.3);
+    }
+
+    function healthGain(amount:Float)
+    {
+        health = Math.min(health + amount, maxHealth);
+        if (health >= maxHealth) return;
+        shaking = false;
+        score += 10;
+
+        healthTypeGraphic.alpha = 0.5;
+        healthTypeGraphic.color = FlxColor.LIME;
+        FlxTween.tween(healthTypeGraphic, {alpha: 0}, 0.2);
+        FlxTween.tween(healthBar, {value: health}, 0.3);
     }
 
     function pauseTheGame()
