@@ -20,7 +20,6 @@ class CreditsMenu extends StateHandler
     var bg:FlxSprite;
     var intendedColor:FlxColor;
     var checker:FlxBackdrop;
-    var button:FlxSprite;
     var bottomBG:FlxSprite;
     var title:FlxText;
     var bottomTitle:FlxText;
@@ -62,11 +61,12 @@ class CreditsMenu extends StateHandler
 		for (i in 0...creditsList.length)
 		{
             creditsIcon = new FlxSprite(50 + (i * 140), 0).loadGraphic(Paths.imagePath("creditsMenu/credits/" + creditsList[i][0]));
-            creditsIcon.scale.set(0.3, 0.3);
+            creditsIcon.scale.set(0.2, 0.2);
             creditsIcon.x = 510;
             creditsIcon.y = 220;
             creditsIcon.updateHitbox();
             creditsIcon.ID = i;
+            creditsIcon.alpha = 0.5;
             creditsGroup.add(creditsIcon);
 		}
 
@@ -110,14 +110,6 @@ class CreditsMenu extends StateHandler
         creditsDesc.y = FlxG.height - 38;
         add(creditsDesc);
 
-		button = new FlxSprite().loadGraphic(Paths.imagePath("creditsMenu/button"));
-        button.scrollFactor.set();
-        button.y = 650;
-        button.x = 10;
-        button.scale.set(0.5, 0.5);
-        button.updateHitbox();
-        add(button);
-
         changeTheSelection(0);
         intendedColor = bg.color;
 
@@ -130,11 +122,7 @@ class CreditsMenu extends StateHandler
         textFloater += elapsed;
         creditsName.y = 190 + (Math.sin(textFloater) * 1 ) * 10;
 
-        if (FlxG.mouse.overlaps(button)) {
-            if (FlxG.mouse.justReleased) StateHandler.switchToNewState(new TitleScreen());
-        } else if (FlxG.keys.justPressed.ESCAPE) {
-            StateHandler.switchToNewState(new TitleScreen());
-        }
+        if (FlxG.keys.justPressed.ESCAPE) StateHandler.switchToNewState(new TitleScreen());
 
         creditsGroup.forEach(function(member:FlxSprite)
         {
@@ -144,11 +132,13 @@ class CreditsMenu extends StateHandler
             {
                 distItem = member.ID;
                 currentSelector = distItem;
-
+                FlxTween.tween(member, {alpha: 1, "scale.x": 0.3, "scale.y": 0.3}, 0.2, {ease: FlxEase.quadOut});
                 if (FlxG.mouse.justPressed)
                 {
                    EngineConfiguration.openWebURL(creditsList[currentSelector][4]);
                 }
+            } else {
+                FlxTween.tween(member, {alpha: 0.5, "scale.x": 0.2, "scale.y": 0.2}, 0.2, {ease: FlxEase.quadOut});
             }
         });
 
@@ -174,7 +164,6 @@ class CreditsMenu extends StateHandler
             spr.y += 400;
             spr.kill();
             spr.updateHitbox();
-
 
             if (spr.ID == currentSelector)
             {
