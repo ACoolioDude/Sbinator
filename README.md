@@ -29,6 +29,9 @@
 
 <h1 align="center">Advanced FPS Counter with extra info</h1>
 <img src="https://raw.githubusercontent.com/ACoolioDude/Sbinator/refs/heads/main/sbinator/previews/advanced_fps_counter.png"></img>
+
+<h1 align="center">Pop-up dialogue</h1>
+<img src="https://raw.githubusercontent.com/ACoolioDude/Sbinator/701f920771f4fea23a041cb4ca801ee345fcde83/sbinator/previews/confirm_popup.png"></img>
 </details>
 
 # Credits:
