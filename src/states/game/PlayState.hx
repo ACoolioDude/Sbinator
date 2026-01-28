@@ -21,7 +21,7 @@ class PlayState extends StateHandler
 {
     // In-game stuff
     var bg:FlxSprite;
-    var bg2:FlxSprite;
+    public var bg2:FlxSprite;
     public var player:Player;
     public var playerTrail:FlxTrail;
     var healthTypeGraphic:FlxSprite;
@@ -37,14 +37,12 @@ class PlayState extends StateHandler
     var maxHealth:Float = 1;
 
     // Backend
-    var levelBound:FlxGroup;
+    public var levelBound:FlxGroup;
     public var cameraGame:FlxCamera;
     public var gameGroup:FlxSpriteGroup;
     public var cameraUi:FlxCamera;
     public var uiGameGroup:FlxSpriteGroup;
     static public var mainInstance:PlayState;
-    var cameraMode:FlxCameraFollowStyle = FlxCameraFollowStyle.TOPDOWN_TIGHT;
-    public var cameraFollow:FlxObject;
 
     override public function create():Void
     {
@@ -83,10 +81,7 @@ class PlayState extends StateHandler
 
         initInGameUI();
 
-        FlxG.camera.setScrollBoundsRect(1000, 1000, true);
-        cameraFollow = new FlxObject(player.x, player.y - 100, 1, 1);
-		add(cameraFollow);
-		FlxG.camera.follow(cameraFollow, cameraMode);
+		FlxG.camera.follow(gameGroup, FlxCameraFollowStyle.TOPDOWN_TIGHT);
 
         // Without this, the player will fall from camera wall, so keeping this for now
         levelBound = FlxCollision.createCameraWall(cameraGame, false, 20);
@@ -151,6 +146,8 @@ class PlayState extends StateHandler
 		} else {
 		    icon.y = iconY;
 		}
+
+		player.playerMovement();
 
         updateDiscordRPC();
 

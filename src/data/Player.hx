@@ -2,11 +2,13 @@ package data;
 
 import flixel.FlxG;
 import flixel.FlxSprite;
+import flixel.tweens.FlxTween;
 
 class Player extends FlxSprite
 {
     final speedValue:Int = 180;
     final gravityValue:Int = 280;
+    final jumpHeight:Int = 180;
 
     public function new (xPosition:Int = 0, yPosition:Int = 0, scaleX:Float = 0, scaleY:Float = 0)
     {
@@ -29,10 +31,11 @@ class Player extends FlxSprite
     override function update(elapsed:Float)
     {
         playerMovement();
+        FlxG.collide(this, PlayState.mainInstance.bg2);
         super.update(elapsed);
     }
 
-    private function playerMovement()
+    public function playerMovement()
     {
         final left = FlxG.keys.pressed.LEFT || FlxG.keys.pressed.A;
         final right = FlxG.keys.pressed.RIGHT || FlxG.keys.pressed.D;
@@ -88,9 +91,10 @@ class Player extends FlxSprite
         }
 
         // Jumping function
-        if (touching == DOWN && space)
+        if (space && touching == DOWN)
 		{
-            velocity.y = -180;
+            velocity.y = -jumpHeight;
+            FlxTween.tween(PlayState.mainInstance.gameGroup, {y: FlxG.camera.scroll.y - 50}, 0.2, {type: PINGPONG});
             FlxG.sound.play("assets/sounds/jump.ogg");
             PlayState.mainInstance.score += 10;
         }
