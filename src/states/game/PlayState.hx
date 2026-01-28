@@ -15,7 +15,6 @@ import flixel.tweens.FlxTween;
 import flixel.ui.FlxBar;
 import flixel.util.FlxCollision;
 import flixel.util.FlxColor;
-import flixel.util.FlxSpriteUtil;
 import flixel.util.FlxTimer;
 
 class PlayState extends StateHandler
@@ -26,9 +25,7 @@ class PlayState extends StateHandler
     public var player:Player;
     public var playerTrail:FlxTrail;
     var healthTypeGraphic:FlxSprite;
-    var bar:FlxSprite;
     var icon:FlxSprite;
-    var iconX:Float;
     var iconY:Float;
     var shaking:Bool = false;
     var shakeIntensity:Int = 5;
@@ -106,36 +103,34 @@ class PlayState extends StateHandler
         healthTypeGraphic.alpha = 0;
         uiGameGroup.add(healthTypeGraphic);
 
-        bar = FlxSpriteUtil.drawRoundRect(new FlxSprite(80, 645).makeGraphic(300, 40, FlxColor.TRANSPARENT), 0, 0, 300, 40, 10, 10, FlxColor.BLACK);
-        bar.alpha = 0.6;
-        bar.updateHitbox();
-        uiGameGroup.add(bar);
-
-        uiText = new FlxText(150, bar.y + 5, FlxG.width, "", 12);
-        uiText.setFormat(Paths.fontPath("bahnschrift.ttf"), 20, FlxColor.WHITE, FlxTextAlign.LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-        uiText.borderSize = 2;
-        uiText.borderQuality = 2;
-        uiText.text = "Score: 0 / Health: 100%";
-        uiGameGroup.add(uiText);
-
-        icon = new FlxSprite(15, bar.y + -45).loadGraphic(Paths.imagePath("game/in-game/icon-stefan"));
-        icon.scale.set(0.4, 0.4);
-        icon.updateHitbox();
-        iconX = icon.x;
-        iconY = icon.y;
-        uiGameGroup.add(icon);
-
         healthBarSprite = new FlxSprite(0, FlxG.height * 0.9).loadGraphic(Paths.imagePath("game/in-game/health"));
         healthBarSprite.scrollFactor.set();
-        healthBarSprite.scale.set(0.8, 0.8);
+        healthBarSprite.scale.set(1.2, 1);
         healthBarSprite.updateHitbox();
         healthBarSprite.screenCenter(X);
         uiGameGroup.add(healthBarSprite);
 
         healthBar = new FlxBar(healthBarSprite.x + 4, healthBarSprite.y + 4, LEFT_TO_RIGHT, Std.int(healthBarSprite.width - 8), Std.int(healthBarSprite.height - 8), this, 'health', 0, maxHealth);
         healthBar.createFilledBar(FlxColor.RED, FlxColor.GREEN);
+        healthBar.updateHitbox();
         healthBar.screenCenter(X);
         uiGameGroup.add(healthBar);
+
+        icon = new FlxSprite(0, FlxG.height * 0.9 -45).loadGraphic(Paths.imagePath("game/in-game/icon-stefan"));
+        icon.scale.set(0.3, 0.3);
+        icon.updateHitbox();
+        iconY = icon.y;
+        icon.screenCenter(X);
+        uiGameGroup.add(icon);
+
+        uiText = new FlxText(0, FlxG.height * 0.95, FlxG.width, "", 12);
+        uiText.setFormat(Paths.fontPath("bahnschrift.ttf"), 18, FlxColor.WHITE, FlxTextAlign.CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+        uiText.text = "Score: 0 / Health: 100%";
+        uiText.borderSize = 2;
+        uiText.borderQuality = 2;
+        uiText.updateHitbox();
+        uiText.screenCenter(X);
+        uiGameGroup.add(uiText);
     }
 
     override public function update(elapsed:Float):Void
@@ -152,7 +147,7 @@ class PlayState extends StateHandler
 		healthBar.value = health;
 
 		if (shaking) {
-		    icon.y = 646 + (FlxG.random.float(-shakeIntensity, shakeIntensity));
+		    icon.y = 610 + (FlxG.random.float(-shakeIntensity, shakeIntensity));
 		} else {
 		    icon.y = iconY;
 		}

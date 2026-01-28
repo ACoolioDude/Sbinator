@@ -71,8 +71,8 @@ class InitState extends FlxState
 		sbinator.active = false;
 		add(sbinator);
 
-        statusText = new FlxText(0, 0, "");
-        statusText.setFormat(Paths.fontPath("bahnschrift.ttf"), 20, FlxColor.WHITE, LEFT, OUTLINE_FAST, FlxColor.BLACK);
+        statusText = new FlxText(0, FlxG.height * 0.7, "");
+        statusText.setFormat(Paths.fontPath("bahnschrift.ttf"), 20, FlxColor.WHITE, CENTER, OUTLINE_FAST, FlxColor.BLACK);
 		statusText.borderSize = 2;
         statusText.alpha = 0;
         statusText.active = false;
