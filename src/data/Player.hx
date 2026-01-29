@@ -94,7 +94,7 @@ class Player extends FlxSprite
         if (space && touching == DOWN)
 		{
             velocity.y = -jumpHeight;
-            FlxTween.tween(PlayState.mainInstance.gameGroup, {y: FlxG.camera.scroll.y - 50}, 0.2, {type: PINGPONG});
+            // FlxTween.tween(PlayState.mainInstance.gameGroup, {y: FlxG.camera.scroll.y - 50}, 0.2, {type: PINGPONG}); Maybe we should disable this for now. --ACoolioDude (Stefan)
             FlxG.sound.play("assets/sounds/jump.ogg");
             PlayState.mainInstance.score += 10;
         }
