@@ -10,7 +10,7 @@ import sbinator.backend.GameUtils.LinuxHandler;
 #end
 import sbinator.backend.HiddenProcess;
 import sbinator.backend.data.Player;
-import sbinator.backend.debugnator.FramePerSecond.FPS;
+import sbinator.backend.debuggernator.FramePerSecond.FPS;
 import sbinator.backend.macro.GitHub;
 import sbinator.backend.transition.Transition;
 import sbinator.backend.transition.StateHandler;

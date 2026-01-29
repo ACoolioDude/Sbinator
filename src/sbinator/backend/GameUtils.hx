@@ -14,6 +14,7 @@ import flixel.util.FlxSave;
 import lime.graphics.opengl.GL;
 import openfl.display.BitmapData;
 import openfl.media.Sound;
+import openfl.system.Capabilities;
 import openfl.system.System;
 import openfl.utils.Assets;
 
@@ -156,7 +157,7 @@ class EngineConfiguration
 
 		try
 		{
-		    cpuArch = '${openfl.system.Capabilities.cpuArchitecture}_${(openfl.system.Capabilities.supports64BitProcesses ? '64' : '32')}';
+		    cpuArch = '${Capabilities.cpuArchitecture}_${(Capabilities.supports64BitProcesses ? '64' : '32')}';
 		} catch (e) {
             trace('Unable to grab CPU Architecture: $e');
 		}
@@ -168,7 +169,7 @@ class EngineConfiguration
             trace('Unable to grab GPU Name: $e');
         }
 
-        return 'Sbinator v${gameVersion}\nOS: ${osName}\nCPU: ${cpuName} - ${cpuArch}\nGPU: ${gpuName}\nBranch: ${Main.releaseCycle} - (Commit v${GitHub.getGitCommitHash()} - ${GitHub.getGitBranch()})';
+        return 'Sbinator v${gameVersion}\nState: ${Type.getClassName(Type.getClass(FlxG.state))}${FlxG.state.subState != null ? ' [Substate: ${Type.getClassName(Type.getClass(FlxG.state.subState))}]' : ''}\nOS: ${osName}\nCPU: ${cpuName} - ${cpuArch}\nGPU: ${gpuName}\nBranch: ${Main.releaseCycle} - (Commit v${GitHub.getGitCommitHash()} - ${GitHub.getGitBranch()})';
     }
 }
 

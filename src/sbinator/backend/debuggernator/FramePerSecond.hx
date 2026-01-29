@@ -1,4 +1,4 @@
-package sbinator.backend.debugnator;
+package sbinator.backend.debuggernator;
 
 import flixel.FlxG;
 import flixel.util.FlxColor;
@@ -94,7 +94,7 @@ class FPS extends Sprite {
 
         background = new Sprite();
         background.graphics.beginFill(1, 0.6);
-        background.graphics.drawRoundRect(0, 0, 200, 200, 25, 25);
+        background.graphics.drawRoundRect(0, 0, 200, 200, 15, 15);
         background.graphics.endFill();
         addChild(background);
 
@@ -307,7 +307,7 @@ class FPS extends Sprite {
     }
 
     function set_displayDebugger(v:Bool):Bool {
-        background.height = (v ? 115 : 43);
+        background.height = (v ? 140 : 43);
         return displayDebugger = v;
     }
 }
