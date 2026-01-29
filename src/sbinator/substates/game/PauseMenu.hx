@@ -1,4 +1,4 @@
-package substates.game;
+package sbinator.substates.game;
 
 import flixel.FlxG;
 import flixel.FlxSprite;

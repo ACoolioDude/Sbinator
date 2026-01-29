@@ -1,4 +1,4 @@
-package data.backend;
+package sbinator.backend;
 
 #if DISCORD_ALLOWED
 import cpp.Function;

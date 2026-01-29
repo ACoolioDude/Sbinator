@@ -1,4 +1,4 @@
-package transition;
+package sbinator.backend.transition;
 
 import flixel.FlxSubState;
 

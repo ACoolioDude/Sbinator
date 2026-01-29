@@ -1,4 +1,4 @@
-package states;
+package sbinator.states;
 
 #if cpp
 import cpp.vm.Thread;

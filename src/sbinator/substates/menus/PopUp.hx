@@ -1,6 +1,6 @@
 // Credits for CoreCat of pop up event code
 
-package substates.menus;
+package sbinator.substates.menus;
 
 import flixel.FlxG;
 import flixel.FlxSprite;

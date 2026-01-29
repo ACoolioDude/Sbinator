@@ -1,4 +1,4 @@
-package states.modules;
+package sbinator.states.modules;
 
 import flixel.FlxG;
 import flixel.FlxSprite;

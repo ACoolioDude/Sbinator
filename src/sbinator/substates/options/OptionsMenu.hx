@@ -1,4 +1,4 @@
-package substates.options;
+package sbinator.substates.options;
 
 import flixel.FlxG;
 import flixel.FlxSprite;

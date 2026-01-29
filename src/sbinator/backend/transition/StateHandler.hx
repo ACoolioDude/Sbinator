@@ -1,6 +1,6 @@
 // A main game state handler with transition included, so free to edit this if you want to improve my class file :D
 
-package transition;
+package sbinator.backend.transition;
 
 import flixel.FlxG;
 import flixel.FlxState;

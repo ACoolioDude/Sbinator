@@ -1,4 +1,4 @@
-package data.backend;
+package sbinator.backend;
 
 #if cpp
 import cpp.vm.Gc;
@@ -11,6 +11,7 @@ import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.system.FlxAssets;
 import flixel.util.FlxColor;
 import flixel.util.FlxSave;
+import lime.graphics.opengl.GL;
 import openfl.display.BitmapData;
 import openfl.media.Sound;
 import openfl.system.System;
@@ -72,6 +73,102 @@ class EngineConfiguration
         #end
 
         // trace("URL: " + url);
+    }
+
+    // Credits for CNE (Codename Engine) devs for this working code!
+    public static function getDebug():String {
+        static var osName:String = "Unknown";
+        static var cpuName:String = "Unknown";
+        static var cpuArch:String = "Unknown";
+        static var gpuName:String = "Unknown";
+
+        if (lime.system.System.platformLabel != null && lime.system.System.platformLabel != "" && lime.system.System.platformVersion != null && lime.system.System.platformVersion != "") {
+            #if linux
+            var process = new HiddenProcess("cat", ["/etc/os-release"]);
+		    if (process.exitCode() != 0) trace('Unable to grab OS Label');
+		    else
+            {
+			    var distroName = "";
+			    var osVersion = "";
+			    for (line in process.stdout.readAll().toString().split("\n"))
+                {
+				    if (line.startsWith("PRETTY_NAME="))
+                    {
+					    var index = line.indexOf('"');
+					    if (index != -1) distroName = line.substring(index + 1, line.lastIndexOf('"'));
+					else
+                    {
+						var arr = line.split("=");
+						arr.shift();
+						distroName = arr.join("=");
+					}
+				}
+
+				if (line.startsWith("VERSION="))
+                {
+					var index = line.indexOf('"');
+					if (index != -1)
+						osVersion = line.substring(index + 1, line.lastIndexOf('"'));
+					else
+                    {
+						var arr = line.split("=");
+						arr.shift();
+						osVersion = arr.join("=");
+					}
+				}
+			}
+
+			if (distroName != "") osName = '${distroName} ${osVersion}'.trim() + " - " + LinuxHandler.de + " v" + LinuxHandler.version + " (" + LinuxHandler.getWMInfo() + " - " + LinuxHandler.getSessionInfo() + ")";
+		    }
+            #else
+            osName = lime.system.System.platformLabel.replace(lime.system.System.platformVersion, "").trim() + " - " + lime.system.System.platformVersion;
+            #end
+        } else {
+            trace('Unable to grab system label!');
+        }
+
+        try
+        {
+			#if windows
+			var process = new HiddenProcess("wmic", ["cpu", "get", "name"]);
+			if (process.exitCode() != 0)
+			    throw 'Could not fetch CPU information';
+			cpuName = process.stdout.readAll().toString().trim().split("\n")[1].trim();
+			#elseif mac
+			var process = new HiddenProcess("sysctl -a | grep brand_string"); // Somehow this isnt able to use the args but it still works
+			if (process.exitCode() != 0)
+			    throw 'Could not fetch CPU information';
+			cpuName = process.stdout.readAll().toString().trim().split(":")[1].trim();
+			#elseif linux
+			var process = new HiddenProcess("cat", ["/proc/cpuinfo"]);
+			if (process.exitCode() != 0)
+			    throw 'Could not fetch CPU information';
+			for (line in process.stdout.readAll().toString().split("\n")) {
+				if (line.indexOf("model name") == 0) {
+					cpuName = line.substring(line.indexOf(":") + 2);
+					break;
+				}
+			}
+			#end
+		} catch (e) {
+			trace('Unable to grab CPU Name: $e');
+		}
+
+		try
+		{
+		    cpuArch = '${openfl.system.Capabilities.cpuArchitecture}_${(openfl.system.Capabilities.supports64BitProcesses ? '64' : '32')}';
+		} catch (e) {
+            trace('Unable to grab CPU Architecture: $e');
+		}
+
+        try
+        {
+            gpuName = GL.getParameter(GL.RENDERER) + "\nOpenGL " + GL.getParameter(GL.VERSION);
+        } catch (e) {
+            trace('Unable to grab GPU Name: $e');
+        }
+
+        return 'Sbinator v${gameVersion}\nOS: ${osName}\nCPU: ${cpuName} - ${cpuArch}\nGPU: ${gpuName}\nBranch: ${Main.releaseCycle} - (Commit v${GitHub.getGitCommitHash()} - ${GitHub.getGitBranch()})';
     }
 }
 

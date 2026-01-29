@@ -1,4 +1,4 @@
-package data;
+package sbinator.backend.data;
 
 import flixel.FlxG;
 import flixel.FlxSprite;

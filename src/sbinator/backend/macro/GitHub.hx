@@ -1,6 +1,6 @@
-// Credits for CoreCat and ZSolar Dev for GitHub commit code
+// Credits for CoreCat and ZSolarDev for GitHub commit code
 
-package data.backend.macro;
+package sbinator.backend.macro;
 
 class GitHub {
 	public static macro function getGitCommitHash():haxe.macro.Expr.ExprOf<String> {
@@ -37,7 +37,6 @@ class GitHub {
 
 		var branchName:String = branchProcess.stdout.readLine();
 		branchProcess.close();
-		trace('Git Branch Name: ${branchName}');
 
 		return macro $v{branchName};
 		#else
@@ -67,7 +66,6 @@ class GitHub {
 				throw e;
 			}
 		}
-		trace('Git Status Output: ${output}');
 
 		return macro $v{output.length > 0};
 		#else

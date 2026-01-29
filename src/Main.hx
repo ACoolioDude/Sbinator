@@ -33,7 +33,7 @@ class Main extends Sprite
 		skipFlixelSplash: true
 	};
 
-	public static var fpsVar:FramePerSecond;
+	public static var fpsVar:FPS;
 
 	public static var randomErrorMessages:Array<String> = [
         "SBINATOR OCCURRED A CRASH!!", // Suggested by ???
@@ -76,9 +76,10 @@ class Main extends Sprite
 		#if linux
 		var icon = Image.fromFile("icon.png");
 		Lib.current.stage.window.setIcon(icon);
+		LinuxHandler.init();
 		#end
 
-		fpsVar = new FramePerSecond();
+		fpsVar = new FPS();
 		Lib.current.stage.align = StageAlign.TOP_LEFT;
 		Lib.current.stage.scaleMode = StageScaleMode.NO_SCALE;
 		if (fpsVar != null) fpsVar.visible = true;
@@ -134,7 +135,7 @@ class Main extends Sprite
 		#if sys
 		if (!FileSystem.exists("crash/"))
 			FileSystem.createDirectory("crash/");
-		File.saveContent(path, '${randomErrorMessages[FlxG.random.int(0, randomErrorMessages.length)]}\n==============\n${FramePerSecond.getDebug()}\n==============\n${stackTraceString}');
+		File.saveContent(path, '${randomErrorMessages[FlxG.random.int(0, randomErrorMessages.length)]}\n==============\n${EngineConfiguration.getDebug()}\n==============\n${stackTraceString}');
 		#end
 
 		var normalPath:String = Path.normalize(path);

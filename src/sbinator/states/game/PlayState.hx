@@ -1,4 +1,4 @@
-package states.game;
+package sbinator.states.game;
 
 import flixel.FlxCamera;
 import flixel.FlxG;

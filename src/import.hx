@@ -1,33 +1,33 @@
 #if (!macro)
 
 // Important
-import data.Player;
-import data.backend.Discord.DiscordClient;
-import data.backend.GameUtils.EngineConfiguration;
-import data.backend.GameUtils.DataHandler;
-import data.backend.GameUtils.Paths;
+import sbinator.backend.Discord.DiscordClient;
+import sbinator.backend.GameUtils.EngineConfiguration;
+import sbinator.backend.GameUtils.DataHandler;
+import sbinator.backend.GameUtils.Paths;
 #if linux
-import data.backend.GameUtils.LinuxHandler;
+import sbinator.backend.GameUtils.LinuxHandler;
 #end
-import data.backend.FramePerSecond;
-import data.backend.HiddenProcess;
-import data.backend.macro.GitHub;
-import transition.Transition;
-import transition.StateHandler;
-import transition.SubstateHandler;
+import sbinator.backend.HiddenProcess;
+import sbinator.backend.data.Player;
+import sbinator.backend.debugnator.FramePerSecond.FPS;
+import sbinator.backend.macro.GitHub;
+import sbinator.backend.transition.Transition;
+import sbinator.backend.transition.StateHandler;
+import sbinator.backend.transition.SubstateHandler;
 
 // States
-import states.InitState;
-import states.game.PlayState;
-import states.menus.CreditsMenu;
-import states.menus.TitleScreen;
-import states.modules.CrashState;
+import sbinator.states.InitState;
+import sbinator.states.game.PlayState;
+import sbinator.states.menus.CreditsMenu;
+import sbinator.states.menus.TitleScreen;
+import sbinator.states.modules.CrashState;
 
 // Substates
-import substates.game.GameOver;
-import substates.game.PauseMenu;
-import substates.menus.PopUp.PopUpEvent;
-import substates.options.OptionsMenu;
+import sbinator.substates.game.GameOver;
+import sbinator.substates.game.PauseMenu;
+import sbinator.substates.menus.PopUp.PopUpEvent;
+import sbinator.substates.options.OptionsMenu;
 
 // Other
 #if sys

@@ -1,4 +1,4 @@
-package data.backend;
+package sbinator.backend;
 
 #if cpp
 import cpp.NativeProcess;
