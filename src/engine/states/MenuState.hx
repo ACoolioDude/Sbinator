@@ -1,5 +1,6 @@
 package engine.states;
 
+import openfl.system.System;
 import openfl.media.SoundMixer;
 import openfl.ui.Keyboard;
 import openfl.events.KeyboardEvent;
@@ -10,12 +11,15 @@ import openfl.events.Event;
 import openfl.media.Sound;
 import openfl.media.SoundChannel;
 import openfl.media.SoundTransform;
-import openfl.display.Sprite;
 import openfl.utils.Assets;
 
-class MenuState extends Sprite {
+class MenuState extends SBState {
     var viewThreeDe:View3D;
     var skybox:SkyBox;
+    var overlay:MenuOverlay;
+
+    var overlayFading:Bool = false;
+    var overlayFadeSpeed:Float = 0.03;
 
     var jiggle:Sound;
     var soundCh:SoundChannel;
@@ -26,19 +30,29 @@ class MenuState extends Sprite {
     var speedFade:Float = 0.01;
     var onMusicPlay:Bool = false;
 
-    public function new () {
+    public function new() {
         super();
+        addEventListener(Event.ADDED_TO_STAGE, onAddedStage);
+    }
+
+    function onAddedStage(e:Event):Void {
+        removeEventListener(Event.ADDED_TO_STAGE, onAddedStage);
 
         viewThreeDe = new View3D();
         addChild(viewThreeDe);
 
+        if (stage != null) {
+            viewThreeDe.width = stage.stageWidth;
+            viewThreeDe.height = stage.stageHeight;
+        }
+
         var panoramaBitmaps = new BitmapCubeTexture(
             Assets.getBitmapData("images/menus/backgrounds/panorama_0.png"),
-            Assets.getBitmapData("images/menus/backgrounds/panorama_1.png"),
-            Assets.getBitmapData("images/menus/backgrounds/panorama_4.png"),
+            Assets.getBitmapData("images/menus/backgrounds/panorama_2.png"),
             Assets.getBitmapData("images/menus/backgrounds/panorama_5.png"),
+            Assets.getBitmapData("images/menus/backgrounds/panorama_4.png"),
             Assets.getBitmapData("images/menus/backgrounds/panorama_3.png"),
-            Assets.getBitmapData("images/menus/backgrounds/panorama_2.png")
+            Assets.getBitmapData("images/menus/backgrounds/panorama_1.png")
         );
 
         skybox = new SkyBox(panoramaBitmaps);
@@ -48,7 +62,40 @@ class MenuState extends Sprite {
         viewThreeDe.camera.lens.far = 990;
         viewThreeDe.camera.position.setTo(0, 0, 0);
 
-        addEventListener(Event.ADDED_TO_STAGE, onAddedStage);
+        overlay = new MenuOverlay();
+        overlay.alpha = 0.0;
+        overlay.onOptionSelection = onMenuHandling;
+
+        if (stage != null) {
+            stage.addChild(overlay);
+    
+            if (Main.stateMng != null && Main.stateMng.debug != null) {
+                stage.setChildIndex(Main.stateMng.debug, stage.numChildren - 1);
+            }
+        }
+
+        startOverlay();
+        playJiggle();
+
+        stage.addEventListener(Event.RESIZE, onResize);
+        stage.addEventListener(Event.ENTER_FRAME, onUpdate);
+    }
+
+    public function startOverlay():Void {
+        if (overlay != null) {
+            if (stage != null && !stage.contains(overlay)) {
+                stage.addChild(overlay);
+
+                if (Main.stateMng != null && Main.stateMng.debug != null) {
+                    stage.setChildIndex(Main.stateMng.debug, stage.numChildren - 1);
+                }
+            }
+
+            overlay.alpha = 0.0;
+            overlayFading = true;
+
+            overlay.onOverlayShowing();
+        }
     }
 
     public function onGet3DView():View3D {
@@ -64,27 +111,20 @@ class MenuState extends Sprite {
         }
     }
 
-    function onAddedStage(e:Event):Void {
-        removeEventListener(Event.ADDED_TO_STAGE, onAddedStage);
-        stage.addEventListener(Event.RESIZE, onResize);
-        stage.addEventListener(Event.ENTER_FRAME, onUpdate);
-        stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
-        onResize(null);
+    private function onMenuHandling(choice:String):Void {
+        switch (choice) {
+            case "NEW MAP": throw "In construction...";
+            case "LOAD MAP": onLoadingGame();
+            case "OPTIONS": throw "In construction...";
+            case "EXIT GAME": System.exit(1);
+            case _: trace('Option selected -> ${choice}');
+        }
     }
 
     function onResize(e:Event):Void {
         if (stage != null && viewThreeDe != null) {
             viewThreeDe.width = stage.stageWidth;
             viewThreeDe.height = stage.stageHeight;
-        }
-    }
-
-    var enterPress:Bool = false;
-    function onKeyDown(e:KeyboardEvent):Void {
-        if (e.keyCode == Keyboard.ENTER && !enterPress) {
-            e.stopImmediatePropagation();
-            enterPress = true;
-            onLoadingGame();
         }
     }
 
@@ -98,29 +138,35 @@ class MenuState extends Sprite {
             soundCh.soundTransform = soundTrans;
         }
 
+        if (overlayFading && overlay != null) {
+            overlay.alpha += overlayFadeSpeed;
+            if (overlay.alpha >= 1.0) {
+                overlay.alpha = 1.0;
+                overlayFading = false;
+            }
+        }
+
         viewThreeDe.camera.rotationY += 0.05;
         viewThreeDe.render();
     }
 
     function onLoadingGame():Void {
-        SoundMixer.stopAll();
-        if (stage != null) stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+        if (soundCh != null) soundCh.stop();
         cleanup();
 
-        var loadState = new LoadingState("dev_stage");
-
-        if (parent != null) {
-            parent.addChild(loadState);
-            parent.removeChild(this);
+        if (Main.stateMng != null) {
+            Main.stateMng.switchState(new LoadingState("dev_stage"));
+        } else {
+            switchState(new LoadingState("dev_stage"));
         }
     }
 
-    public function cleanup():Void {
-        removeEventListener(Event.ENTER_FRAME, onUpdate);
+    override public function cleanup():Void {
+        super.cleanup();
+
         if (stage != null) {
             stage.removeEventListener(Event.RESIZE, onResize);
             stage.removeEventListener(Event.ENTER_FRAME, onUpdate);
-            stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
         }
 
         if (viewThreeDe != null) {
@@ -131,9 +177,15 @@ class MenuState extends Sprite {
                     viewThreeDe.scene.removeChildAt(0);
                 }
             }
-
-            //viewThreeDe.dispose();
             viewThreeDe = null;
+        }
+
+        if (overlay != null) {
+            if (overlay.parent != null) {
+                overlay.parent.removeChild(overlay);
+            }
+            overlay.destroy();
+            overlay = null;
         }
     }
 }

@@ -9,6 +9,16 @@
     <haxedef name="no-deprecation-warnings"/>
     <haxedef name="message.reporting" value="pretty" />
 
+    <haxeflag name="-D" value="keep_inline_positions" />
+
+    <haxeflag name="-D" value="HXCPP_STACK_TRACE" />
+    <haxeflag name="-D" value="HXCPP_STACK_lINE" />
+
+    <haxeflag name="-dce" value="no" />
+
+    <haxedef name="no-compilation" if="never" /> 
+    <define name="NO_PRECOMPILED_HEADERS" />
+
     <haxelib name="away3d" />
     <haxelib name="lime" />
     <haxelib name="openfl" />
@@ -16,7 +26,10 @@
     <assets path="assets" rename="assets" />
     <assets path="assets/images" rename="images" />
     <assets path="assets/data/" rename="data" />
+    <assets path="assets/sounds" rename="sounds" />
 
     <set name="BUILD_DIR" value="export/debug" if="debug" />
 	<set name="BUILD_DIR" value="export/release" unless="debug" />
+
+    <icon path="app/icon.png" size="256" />
 </project>

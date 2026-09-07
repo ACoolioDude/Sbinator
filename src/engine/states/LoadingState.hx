@@ -12,7 +12,7 @@ import openfl.text.TextField;
 import openfl.text.TextFormat;
 import openfl.text.TextFieldAutoSize;
 
-class LoadingState extends Sprite {
+class LoadingState extends SBState {
     private var bg:Bitmap;
     private var progressBar:Sprite;
     private var statusBg:Sprite;
@@ -155,19 +155,27 @@ class LoadingState extends Sprite {
 
                 Timer.delay(function() {
                     trace('Loading last stage of ${stage != null}, PlayState instance ${playstateInst != null}');
-                    if (stage != null) {
-                        stage.removeEventListener(Event.RESIZE, onResize);
-
-                        if (bg != null && contains(bg)) removeChild(bg);
-                        if (statusBg != null && contains(statusBg)) removeChild(statusBg);
-                        if (status != null && contains(status)) removeChild(status);
-                        if (progressBar != null && contains(progressBar)) removeChild(progressBar);
-                        graphics.clear();
-    
-                        if (playstateInst != null) stage.addChild(playstateInst); 
-                        if (stage.contains(this)) stage.removeChild(this);
-                    }
-                }, 2000);
+                    if (playstateInst != null) {
+                        if (Main.stateMng != null) {
+                            Main.stateMng.switchState(playstateInst);
+                        } else {
+                            switchState(playstateInst);
+                        }
+                    } 
+                }, 1500);
         }
+    }
+
+    override public function cleanup():Void {
+        super.cleanup();
+
+        stage.removeEventListener(Event.RESIZE, onResize);
+
+        if (bg != null && contains(bg)) removeChild(bg);
+        if (statusBg != null && contains(statusBg)) removeChild(statusBg);
+        if (status != null && contains(status)) removeChild(status);
+        if (progressBar != null && contains(progressBar)) removeChild(progressBar);
+
+        graphics.clear();
     }
 }

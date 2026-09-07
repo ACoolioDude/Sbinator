@@ -1,6 +1,5 @@
 package engine.states.game;
 
-import engine.states.game.substates.PauseSubstate;
 import openfl.events.MouseEvent;
 import openfl.geom.Vector3D;
 import away3d.containers.View3D;
@@ -12,13 +11,12 @@ import away3d.materials.ColorMaterial;
 import away3d.materials.TextureMaterial;
 import away3d.textures.BitmapTexture;
 import away3d.textures.BitmapCubeTexture;
-import openfl.display.Sprite;
 import openfl.events.Event;
 import openfl.events.KeyboardEvent;
 import openfl.ui.Keyboard;
 import openfl.utils.Assets;
 
-class PlayState extends Sprite {
+class PlayState extends SBState {
     private var substate:PauseSubstate;
 
     private var threeDeView:View3D;
@@ -351,7 +349,9 @@ class PlayState extends Sprite {
         }
     }
 
-    public function cleanup():Void {
+    override public function cleanup():Void {
+        super.cleanup();
+
         removeEventListener(Event.ENTER_FRAME, onEnterFrame);
         if (stage != null) {
             stage.removeEventListener(Event.RESIZE, onResize);

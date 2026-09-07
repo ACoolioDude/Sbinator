@@ -61,7 +61,7 @@ class Debug extends Sprite {
         var memory = Std.int(System.totalMemory / 1024 / 1024);
 
         left.text = '${Std.int(framerate)} FPS\n${memory} MB';
-        right.text = 'Sbinator ${Main.VERSION}\n\nHaxe: ${Compiler.getDefine("haxe")}\nOS: ${SystemUtils.getOSName()}\nDisplay: ${viewThreeDe.width}x${viewThreeDe.height}';
+        right.text = 'Sbinator ${Main.VERSION}\n\nHaxe: ${Compiler.getDefine("haxe")}\nOS: ${SystemUtils.getOSName()}';
 
         if (stage != null) {
             graphics.clear();

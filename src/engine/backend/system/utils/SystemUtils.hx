@@ -1,5 +1,6 @@
-package engine.backend.system;
+package engine.backend.system.utils;
 
+import openfl.display.Sprite;
 import sys.FileSystem;
 import sys.io.File;
 
