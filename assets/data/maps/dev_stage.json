@@ -1,0 +1,41 @@
+{
+    "name": "Dev Stage",
+    "voidY": -5000,
+    "spawn": {
+        "x": 0,
+        "y": 50,
+        "z": 0
+    },
+    "platforms": [
+        {
+            "id": "main_spawn",
+            "x": 0,
+            "y": 0,
+            "z": 0,
+            "width": 1000,
+            "height": 20,
+            "depth": 1000,
+            "color": "0x33919191"
+        },
+        {
+            "id": "upper_platform",
+            "x": 750,
+            "y": 100,
+            "z": 0,
+            "width": 400,
+            "height": 20,
+            "depth": 400,
+            "color": "0x00A2E8"
+        },
+        {
+            "id": "distance",
+            "x": 0,
+            "y": 150,
+            "z": 1200,
+            "width": 600,
+            "height": 40,
+            "depth": 600,
+            "color": "0xFF9900"
+        }
+    ]
+}

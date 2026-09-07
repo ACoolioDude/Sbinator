@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+    <meta title="Sbinator Engine" package="com.acooliodude.sbinator" version="0.0.1" company="Sbinator-hub" />
+    <app main="Main" file="SbinatorEngine" path="export" />
+    <window width="1280" height="720" fps="60" background="0x000000" hardware="true" vsync="false" />
+
+    <source path="src" />
+
+    <haxedef name="no-deprecation-warnings"/>
+
+    <haxelib name="away3d" />
+    <haxelib name="lime" />
+    <haxelib name="openfl" />
+
+    <assets path="assets" rename="assets" />
+    <assets path="assets/images" rename="images" />
+    <assets path="assets/data/" rename="data" />
+
+    <set name="BUILD_DIR" value="export/debug" if="debug" />
+	<set name="BUILD_DIR" value="export/release" unless="debug" />
+</project>
