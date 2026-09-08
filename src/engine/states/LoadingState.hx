@@ -28,15 +28,9 @@ class LoadingState extends SBState {
         super();
         this.mapName = mapName;
 
-        var bgPath = "images/menus/loading/loading.jpg";
-        if (Assets.exists(bgPath)) {
-            bg = new Bitmap(Assets.getBitmapData(bgPath));
-            addChild(bg);
-        } else {
-            graphics.beginFill(0x111111);
-            graphics.drawRect(0, 0, 1280, 720);
-            graphics.endFill();
-        }
+        var bgBitmap = ResourceLoader.bitmapData("images/menus/loading/loading.jpg");
+        bg = new Bitmap(bgBitmap);
+        addChild(bg);
 
         progressBar = new Sprite();
         addChild(progressBar);

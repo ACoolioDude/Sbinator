@@ -9,7 +9,7 @@ import openfl.text.TextField;
 import openfl.text.TextFormat;
 import openfl.utils.Assets;
 
-class MenuOverlay extends Sprite {
+class MenuOverlay extends SBSubState {
     private var options:Array<String> = [
         "NEW MAP",
         "LOAD MAP",
@@ -54,17 +54,6 @@ class MenuOverlay extends Sprite {
         title.selectable = false;
         title.width = 600;
         addChild(title);
-
-        var version:TextField = new TextField();
-        var format2:TextFormat = new TextFormat("Bahnschrift", 18, 0xFFFFFFFF, false);
-
-        version.text = "Sbinator " + Main.VERSION;
-        format2.align = TextFormatAlign.LEFT;
-        version.defaultTextFormat = format2;
-        version.selectable = false;
-        version.x = 10;
-        version.y = 600;
-        addChild(version);
     }
 
     private function onMenuOptionCreation():Void {

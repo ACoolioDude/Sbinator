@@ -14,7 +14,6 @@ class InitState extends SBState {
 
     var bg:Sprite;
     var bg2:Sprite;
-    var title:TextField;
     var status:TextField;
     var spTime:Timer;
 
@@ -50,17 +49,6 @@ class InitState extends SBState {
 
         bg2 = new Sprite();
         addChild(bg2);
-
-        title = new TextField();
-        title.selectable = false;
-        title.autoSize = TextFieldAutoSize.CENTER;
-        
-        var format = new TextFormat("Bahnschrift", 32, 0xFFFFFF, true);
-        format.align = TextFormatAlign.CENTER;
-        title.defaultTextFormat = format;
-        title.text = "SBinator";
-        title.embedFonts = false;
-        addChild(title);
 
         status = new TextField();
         status.selectable = false;
@@ -99,11 +87,6 @@ class InitState extends SBState {
         bg.graphics.drawRect(0, 0, w, h);
         bg.graphics.endFill();
 
-        if (title != null) {
-            title.x = (w - title.width) / 2;
-            title.y = (h - title.height) / 2 - 20;
-        }
-
         if (status != null && bg2 != null) {
             var margin:Float = 15;
             var padding:Float = 8;
@@ -130,7 +113,7 @@ class InitState extends SBState {
 
         trace('Starting preload for ${totalAssets} assets...');
 
-        spTime = new Timer(3000, 1);
+        spTime = new Timer(2000, 1);
         spTime.addEventListener(TimerEvent.TIMER_COMPLETE, onTimerCompletion);
         spTime.start();
 
@@ -142,7 +125,6 @@ class InitState extends SBState {
 
         for (path in assetsArray) {
             var low = path.toLowerCase();
-            //trace('Loading: ${path}');
 
             if (StringTools.endsWith(low, ".ogg") || StringTools.endsWith(low, ".wav") || StringTools.endsWith(low, ".mp3")) {
                 Assets.loadSound(path).onComplete(function(_) onAssetsLoaded(path)).onError(function(err) onAssetError(path, err));
@@ -160,8 +142,8 @@ class InitState extends SBState {
 
     function onAssetsLoaded(path:String):Void {
         loaderCount++;
-        trace('Loaded [${loaderCount}/${totalAssets}]: ${path}');
         trace('Loading ${loaderCount} / ${totalAssets}...');
+        trace('Loaded [${loaderCount}/${totalAssets}]: ${path}');
 
         if (loaderCount >= totalAssets) {
             isAssetComplete = true;

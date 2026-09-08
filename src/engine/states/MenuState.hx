@@ -1,6 +1,6 @@
 package engine.states;
 
-import openfl.system.System;
+import openfl.Lib;
 import openfl.media.SoundMixer;
 import openfl.ui.Keyboard;
 import openfl.events.KeyboardEvent;
@@ -47,12 +47,12 @@ class MenuState extends SBState {
         }
 
         var panoramaBitmaps = new BitmapCubeTexture(
-            Assets.getBitmapData("images/menus/backgrounds/panorama_0.png"),
-            Assets.getBitmapData("images/menus/backgrounds/panorama_2.png"),
-            Assets.getBitmapData("images/menus/backgrounds/panorama_5.png"),
-            Assets.getBitmapData("images/menus/backgrounds/panorama_4.png"),
-            Assets.getBitmapData("images/menus/backgrounds/panorama_3.png"),
-            Assets.getBitmapData("images/menus/backgrounds/panorama_1.png")
+            ResourceLoader.bitmapData("images/menus/backgrounds/panorama_0.png"),
+            ResourceLoader.bitmapData("images/menus/backgrounds/panorama_2.png"),
+            ResourceLoader.bitmapData("images/menus/backgrounds/panorama_5.png"),
+            ResourceLoader.bitmapData("images/menus/backgrounds/panorama_4.png"),
+            ResourceLoader.bitmapData("images/menus/backgrounds/panorama_3.png"),
+            ResourceLoader.bitmapData("images/menus/backgrounds/panorama_1.png")
         );
 
         skybox = new SkyBox(panoramaBitmaps);
@@ -65,14 +65,6 @@ class MenuState extends SBState {
         overlay = new MenuOverlay();
         overlay.alpha = 0.0;
         overlay.onOptionSelection = onMenuHandling;
-
-        if (stage != null) {
-            stage.addChild(overlay);
-    
-            if (Main.stateMng != null && Main.stateMng.debug != null) {
-                stage.setChildIndex(Main.stateMng.debug, stage.numChildren - 1);
-            }
-        }
 
         startOverlay();
         playJiggle();
@@ -115,8 +107,8 @@ class MenuState extends SBState {
         switch (choice) {
             case "NEW MAP": throw "In construction...";
             case "LOAD MAP": onLoadingGame();
-            case "OPTIONS": throw "In construction...";
-            case "EXIT GAME": System.exit(1);
+            case "OPTIONS": onOptionsMenu();
+            case "EXIT GAME": Sys.exit(1);
             case _: trace('Option selected -> ${choice}');
         }
     }
@@ -148,6 +140,21 @@ class MenuState extends SBState {
 
         viewThreeDe.camera.rotationY += 0.05;
         viewThreeDe.render();
+    }
+
+    function onOptionsMenu():Void {
+        var options = new OptionsOverlay(this);
+        options.onClose = function() {
+            options.destroy();
+        }
+        
+        if (stage != null && !stage.contains(options)) {
+            stage.addChild(options);
+
+            if (Main.stateMng != null && Main.stateMng.debug != null) {
+                stage.setChildIndex(Main.stateMng.debug, stage.numChildren - 1);
+            }
+        }
     }
 
     function onLoadingGame():Void {

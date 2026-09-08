@@ -19,13 +19,14 @@ class Main extends Sprite {
         #if linux
         Lib.current.stage.window.setIcon(Image.fromFile("app/icon.png"));
         #end
-
-        SBCrash.init();
         addEventListener(Event.ADDED_TO_STAGE, onAddedStage);
     }
 
     function onAddedStage(e:Event):Void {
         removeEventListener(Event.ADDED_TO_STAGE, onAddedStage);
+
+        SBCrash.init();
+        Options.load();
 
         debug = new Debug(null);
         debug.visible = false;

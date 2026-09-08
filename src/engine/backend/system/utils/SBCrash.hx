@@ -86,7 +86,7 @@ class SBCrash {
                     case Method(cla, func):
                         var parts:Array<String> = cla.split(".");
                         var className:String = parts[parts.length - 1];
-                        return '(${file}) -> ${className}::${func}() [Line ${line}]';
+                        return '${className}::${func}() [Line ${line}]';
                     case _:
                         return '(${file}) -> [Line ${line}]';
                 }

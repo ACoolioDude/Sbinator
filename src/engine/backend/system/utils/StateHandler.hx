@@ -1,5 +1,6 @@
 package engine.backend.system.utils;
 
+import cpp.vm.Gc;
 import openfl.display.Sprite;
 import Type;
 
@@ -25,6 +26,12 @@ class StateHandler {
         if (state != null) {
             container.addChild(state);
         }
+
+        #if cpp
+        Gc.compact();
+        #else
+        openfl.system.System.gc();
+        #end
 
         if (debug != null && state != null) {
             var path:String = Type.getClassName(Type.getClass(state));
