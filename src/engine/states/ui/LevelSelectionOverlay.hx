@@ -65,7 +65,7 @@ class LevelSelectionOverlay extends SBSubState {
         addChild(panelUI);
 
         title = new TextField();
-        title.defaultTextFormat = new TextFormat("_sans", 12, 0xFFFFFF, true);
+        title.defaultTextFormat = new TextFormat("Bahnschrift", 12, 0xFFFFFF, true);
         title.text = "NEW GAME (Test)";
         title.selectable = false;
         panelUI.addChild(title);
@@ -76,7 +76,7 @@ class LevelSelectionOverlay extends SBSubState {
         addChild(closeButt);
 
         closeTitle = new TextField();
-        closeTitle.defaultTextFormat = new TextFormat("_sans", 12, 0xFFFFFF, false);
+        closeTitle.defaultTextFormat = new TextFormat("Bahnschrift", 12, 0xFFFFFF, false);
         closeTitle.mouseEnabled = false;
         closeTitle.selectable = false;
         closeTitle.text = "Cancel";
@@ -139,7 +139,7 @@ class LevelSelectionOverlay extends SBSubState {
             var yPos = startY;
 
             var title = new TextField();
-            title.defaultTextFormat = new TextFormat("_sans", 11, (i == levelSelection) ? 0x00854D : 0xAAAAAA, true);
+            title.defaultTextFormat = new TextFormat("Bahnschrift", 11, (i == levelSelection) ? 0x00854D : 0xAAAAAA, true);
             title.text = map.levelTitle;
             title.x = xPos + 20;
             title.y = yPos + 16;

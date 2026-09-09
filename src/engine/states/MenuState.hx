@@ -1,5 +1,7 @@
 package engine.states;
 
+import engine.states.ui.PopupOverlay;
+import away3d.cameras.lenses.PerspectiveLens;
 import haxe.Timer;
 import openfl.Lib;
 import openfl.media.SoundMixer;
@@ -61,6 +63,8 @@ class MenuState extends SBState {
 
         viewThreeDe.camera.lens.near = 0.1;
         viewThreeDe.camera.lens.far = 990;
+        var lens = cast(viewThreeDe.camera.lens, PerspectiveLens);
+        if (lens != null) lens.fieldOfView = Options.skyboxFov;
         viewThreeDe.camera.position.setTo(0, 0, 0);
 
         overlay = new MenuOverlay();
@@ -109,7 +113,7 @@ class MenuState extends SBState {
             case "NEW MAP": onLevelSelection();
             case "LOAD MAP": onLoadingGame();
             case "OPTIONS": onOptionsMenu();
-            case "EXIT GAME": Sys.exit(1);
+            case "EXIT GAME": onExitGame();
             case _: trace('Option selected -> ${choice}');
         }
     }
@@ -179,6 +183,27 @@ class MenuState extends SBState {
         
         if (stage != null && !stage.contains(options)) {
             stage.addChild(options);
+
+            if (Main.stateMng != null && Main.stateMng.debug != null) {
+                stage.setChildIndex(Main.stateMng.debug, stage.numChildren - 1);
+            }
+        }
+    }
+
+    function onExitGame():Void {
+        var popup = new PopupOverlay(
+            "QUIT SBINATOR",
+            "Do you want to end game session?",
+            function () {
+                cleanup();
+                haxe.Timer.delay(function(){
+                    Sys.exit(0);
+                }, 2000);
+            }
+        );
+
+        if (stage != null && !stage.contains(popup)) {
+            stage.addChild(popup);
 
             if (Main.stateMng != null && Main.stateMng.debug != null) {
                 stage.setChildIndex(Main.stateMng.debug, stage.numChildren - 1);

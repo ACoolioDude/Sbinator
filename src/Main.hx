@@ -26,7 +26,6 @@ class Main extends Sprite {
         removeEventListener(Event.ADDED_TO_STAGE, onAddedStage);
 
         SBCrash.init();
-        Options.load();
 
         debug = new Debug(null);
         debug.visible = false;

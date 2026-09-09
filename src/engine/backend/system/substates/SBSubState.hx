@@ -25,6 +25,10 @@ class SBSubState extends Sprite {
     public function onResize(e:Event):Void {
 
     }
+
+    public function onClick():Void {
+        
+    }
     
     public function close():Void {
         if (stage != null) stage.removeEventListener(Event.RESIZE, onResize);

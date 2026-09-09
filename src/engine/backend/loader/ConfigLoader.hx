@@ -12,8 +12,12 @@ class Options {
     private static inline var CONFIG_PATH:String = "assets/data/conf/settings.cfg";
 
     public static function save():Void {
-        var data = 'fps_${fps}\nskyboxSpeed_${skyboxSpeed}skyboxFOV_\n${skyboxFov}';
-
+        var data = haxe.Json.stringify({
+            fps: fps,
+            skyboxSpeed: skyboxSpeed,
+            skyboxFov: skyboxFov
+        });
+    
         try {
             if (!FileSystem.exists(CONFIG_DIRECTORY)) FileSystem.createDirectory(CONFIG_DIRECTORY);
             File.saveContent(CONFIG_PATH, data);
@@ -27,12 +31,13 @@ class Options {
         try {
             if (FileSystem.exists(CONFIG_PATH)) {
                 var content = File.getContent(CONFIG_PATH);
-                var part = content.split(",");
-                if (part.length >= 3) {
-                    fps = Std.parseInt(part[0]);
-                    skyboxSpeed = Std.parseInt(part[1]);
-                    skyboxFov = Std.parseInt(part[2]);
-                }
+                var parsed = haxe.Json.parse(content);
+            
+                if (Reflect.hasField(parsed, "fps")) fps = parsed.fps;
+                if (Reflect.hasField(parsed, "skyboxSpeed")) skyboxSpeed = parsed.skyboxSpeed;
+                if (Reflect.hasField(parsed, "skyboxFov")) skyboxFov = parsed.skyboxFov;
+            
+                trace('Configuration loaded successfully!');
             }
         } catch (e:Dynamic) {
             trace('Configuration failed to load: ${e}');

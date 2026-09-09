@@ -28,10 +28,17 @@ class OptionsOverlay extends SBSubState {
     private var fpsIndex:Int = 1;
     private var fpsNum:Array<Int> = [30, 60, 120, 144, 160, 180, 200, 220, 240];
     private var fpsText:TextField;
+
+    private var skyboxFovTxt:TextField;
+    private var skyboxFovValue:TextField;
     
     private var initFps:Int;
     private var initSkyboxSpeed:Float;
     private var initSkyboxFov:Int;
+
+    private var tempFpsIndex:Int;
+    private var tempFov:Int;
+    private var tempSkyboxSpeed:Float;
 
     private var isChanged:Bool = false;
     public var onClose:Void -> Void;
@@ -64,10 +71,6 @@ class OptionsOverlay extends SBSubState {
     }
 
     private function initUI():Void {
-        initFps = Options.fps;
-        initSkyboxSpeed = (targetState != null && Reflect.hasField(targetState, "skyboxSpeed")) ? targetState.skyboxSpeed : 0.0;
-        initSkyboxFov = (targetState != null && targetState.camera != null && Reflect.hasField(targetState.camera, "lens")) ? Std.int(targetState.camera.lens.fieldOfView) : Options.skyboxFov;
-
         fpsIndex = 0;
         for (i in 0...fpsNum.length) {
             if (fpsNum[i] == Options.fps) {
@@ -75,6 +78,15 @@ class OptionsOverlay extends SBSubState {
                 break;
             }
         }
+
+        initFps = fpsNum[fpsIndex];
+        tempFpsIndex = fpsIndex;
+        
+        tempSkyboxSpeed = (targetState != null && Reflect.hasField(targetState, "skyboxSpeed")) ? targetState.skyboxSpeed : Options.skyboxSpeed;
+        initSkyboxSpeed = tempSkyboxSpeed;
+        
+        tempFov = (targetState != null && targetState.camera != null && Reflect.hasField(targetState, "lens")) ? Std.int(targetState.camera.lens.fieldOfView) : Options.skyboxFov;
+        initSkyboxFov = tempFov;
 
         background = new Sprite();
         addChild(background);
@@ -96,7 +108,7 @@ class OptionsOverlay extends SBSubState {
         createOptionCategory("Video");
 
         title = new TextField();
-        title.defaultTextFormat = new TextFormat("_sans", 12, 0xFFFFFF, true);
+        title.defaultTextFormat = new TextFormat("Bahnschrift", 12, 0xFFFFFF, true);
         title.text = "OPTIONS";
         title.selectable = false;
         addChild(title);
@@ -107,7 +119,7 @@ class OptionsOverlay extends SBSubState {
         addChild(closeButt);
 
         closeTitle = new TextField();
-        closeTitle.defaultTextFormat = new TextFormat("_sans", 12, 0xFFFFFF, false);
+        closeTitle.defaultTextFormat = new TextFormat("Bahnschrift", 12, 0xFFFFFF, false);
         closeTitle.mouseEnabled = false;
         closeTitle.selectable = false;
         closeTitle.text = "Cancel";
@@ -118,7 +130,7 @@ class OptionsOverlay extends SBSubState {
         addChild(applyButt);
 
         applyTitle = new TextField();
-        applyTitle.defaultTextFormat = new TextFormat("_sans", 12, 0xFFFFFF, false);
+        applyTitle.defaultTextFormat = new TextFormat("Bahnschrift", 12, 0xFFFFFF, false);
         applyTitle.mouseEnabled = false;
         applyTitle.selectable = false;
         applyTitle.text = "Apply";
@@ -173,7 +185,7 @@ class OptionsOverlay extends SBSubState {
         applyButt.x = panelUI.x + panelW - buttW - 102;
         applyButt.y = panelUI.y + 410;
 
-        applyTitle.x = applyButt.x + 24;
+        applyTitle.x = applyButt.x + 20;
         applyTitle.y = applyButt.y + 6;
 
         updateOptions();
@@ -203,10 +215,7 @@ class OptionsOverlay extends SBSubState {
     }
 
     private function updateOptions():Void {
-        var curFov = (targetState != null && targetState.camera != null && Reflect.hasField(targetState.camera, "lens")) ? Std.int(targetState.camera.lens.fieldOfView) : Options.skyboxFov;
-        var currentSkyboxSpeed = (targetState != null && Reflect.hasField(targetState, "skyboxSpeed")) ? targetState.skyboxSpeed : Options.skyboxSpeed;
-        
-        isChanged = (fpsNum[fpsIndex] != initFps) || (currentSkyboxSpeed != initSkyboxSpeed) || (curFov != initSkyboxFov);
+        isChanged = (tempFpsIndex != fpsIndex) || (tempSkyboxSpeed != initSkyboxSpeed) || (tempFov != initSkyboxFov);
 
         applyButt.graphics.clear();
         applyButt.graphics.beginFill(isChanged ? 0x00833b : 0x333333, 1.0);
@@ -220,21 +229,46 @@ class OptionsOverlay extends SBSubState {
     private function createOptionCategory(category:String):Void {
         while (contentArea.numChildren > 0) contentArea.removeChildAt(0);
 
+        fpsText = null;
+        skyboxFovValue = null;
+
         if (category == "Video") {
-            var currentFps = fpsNum[fpsIndex];
+            var currentFps = fpsNum[tempFpsIndex];
             var curFpsTxt = (currentFps == 0) ? "Unlimited" : Std.string(currentFps);
             createOptionRow("FPS Limit", 0, function() {
-                fpsIndex = (fpsIndex + 1) % fpsNum.length;
-                var variable = fpsNum[fpsIndex];
-                Lib.current.stage.frameRate = (variable == 0) ? 0 : variable;
+                tempFpsIndex = (tempFpsIndex + 1) % fpsNum.length;
+                var variable = fpsNum[tempFpsIndex];
                 fpsText.text = (variable == 0) ? "Unlimited" : Std.string(variable);
                 updateOptions();
             }, fpsText = createOptionValue(curFpsTxt, 0));
+
+            var fallbackFov = tempFov;
+            if (targetState != null && targetState.camera != null) {
+                try {
+                    var lens:Dynamic = targetState.camera.lens;
+                    if (lens != null) fallbackFov = Std.int(lens.fieldOfView); 
+                } catch (e:Dynamic) {}
+            }
+
+            var curFovStr = Std.string(fallbackFov);
+            createOptionRow("Camera FOV", 30, function() {
+                tempFov += 5;
+                if (tempFov > 90) tempFov = 45;
+                skyboxFovValue.text = Std.string(tempFov);
+
+                if (targetState != null && targetState.camera != null) {
+                    try {
+                        var lens:Dynamic = targetState.camera.lens;
+                        if (lens != null) lens.fieldOfView = tempFov;
+                    } catch (e:Dynamic) {}
+                }
+                updateOptions();
+            }, skyboxFovValue = createOptionValue(curFovStr, 30));
         }
         else {
             var placeholder = new TextField();
-            placeholder.defaultTextFormat = new TextFormat("_sans", 14, 0x888888);
-            placeholder.text = category + " coming soon";
+            placeholder.defaultTextFormat = new TextFormat("Bahnschrift", 14, 0x888888);
+            placeholder.text = category + " coming...";
             placeholder.x = 10;
             placeholder.y = 10;
             contentArea.addChild(placeholder);
@@ -243,7 +277,7 @@ class OptionsOverlay extends SBSubState {
 
     private function createOptionRow(label:String, yPos:Float, onClickAction:Void -> Void, variable:TextField):Void {
         var labelTxt = new TextField();
-        labelTxt.defaultTextFormat = new TextFormat("_sans", 11, 0xCCCCCC);
+        labelTxt.defaultTextFormat = new TextFormat("Bahnschrift", 11, 0xCCCCCC);
         labelTxt.text = label;
         labelTxt.x = 10;
         labelTxt.y = yPos + 6;
@@ -265,7 +299,7 @@ class OptionsOverlay extends SBSubState {
 
     private function createOptionValue(defaultTxt:String, yPos:Float):TextField {
         var text = new TextField();
-        text.defaultTextFormat = new TextFormat("_sans", 11, 0xFFFFFF);
+        text.defaultTextFormat = new TextFormat("Bahnschrift", 11, 0xFFFFFF);
         text.text = defaultTxt;
         text.x = 235;
         text.y = yPos + 6;
@@ -277,18 +311,24 @@ class OptionsOverlay extends SBSubState {
     private function onAcceptionClick(e:MouseEvent):Void {
         if (!isChanged) return;
 
+        fpsIndex = tempFpsIndex;
         Options.fps = fpsNum[fpsIndex];
+        Options.skyboxFov = tempFov;
+        Options.skyboxSpeed = tempSkyboxSpeed;
+
+        Lib.current.stage.frameRate = (Options.fps == 0) ? 0 : Options.fps;
+
         if (targetState != null) {
-            if (Reflect.hasField(targetState, "skyboxSpeed")) Options.skyboxSpeed = targetState.skyboxSpeed;
+            if (Reflect.hasField(targetState, "skyboxSpeed")) targetState.skyboxSpeed = tempSkyboxSpeed;
             if (targetState.camera != null && Reflect.hasField(targetState.camera, "lens")) {
-                Options.skyboxFov = Std.int(targetState.camera.lens.fieldOfView);
+                targetState.camera.lens.fieldOfView = tempFov;
             }
         }
         Options.save();
 
         initFps = Options.fps;
-        initSkyboxSpeed = (targetState != null && Reflect.hasField(targetState, "skyboxSpeed")) ? targetState.skyboxSpeed : Options.skyboxSpeed;
-        initSkyboxFov = (targetState != null && targetState.camera != null && Reflect.hasField(targetState.camera, "lens")) ? Std.int(targetState.camera.lens.fieldOfView) : Options.skyboxFov;
+        initSkyboxSpeed = tempSkyboxSpeed;
+        initSkyboxFov = tempFov;
 
         updateOptions();
     }

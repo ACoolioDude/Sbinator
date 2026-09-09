@@ -1,5 +1,6 @@
 package engine.states;
 
+import openfl.Lib;
 import openfl.display.Sprite;
 import openfl.text.TextField;
 import openfl.text.TextFormat;
@@ -70,6 +71,8 @@ class InitState extends SBState {
         stage.addEventListener(Event.RESIZE, onResize);
 
         layout();
+        Options.load();
+        Lib.current.stage.frameRate = (Options.fps == 0) ? 0 : Options.fps;
         onPreloadingStart();
     }
 
