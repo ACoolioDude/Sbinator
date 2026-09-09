@@ -130,15 +130,18 @@ class LoadingState extends SBState {
                     updateStatus("Map failed to load!");
                 }
                 curStep++;
+                layout();
 
             case 1:
                 updateStatus("Switching to new state instance");
                 playstateInst = new PlayState(mapData);
                 curStep++;
+                layout();
             
             case 2:
                 updateStatus("Load stage");
                 curStep++;
+                layout();
 
             case 3:
                 updateStatus("Completed loading!");

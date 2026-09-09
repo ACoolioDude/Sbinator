@@ -29,6 +29,7 @@ class InitState extends SBState {
         "images/menus/backgrounds/panorama_3.png",
         "images/menus/backgrounds/panorama_4.png",
         "images/menus/backgrounds/panorama_5.png",
+        "images/menus/level_selection/dev_stage.png",
         "images/menus/loading/loading.jpg",
         "sounds/menus/buttonrollover.wav",
         "sounds/menus/buttonclickrelease.wav",

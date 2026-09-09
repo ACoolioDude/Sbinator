@@ -1,5 +1,6 @@
 package engine.states;
 
+import haxe.Timer;
 import openfl.Lib;
 import openfl.media.SoundMixer;
 import openfl.ui.Keyboard;
@@ -105,7 +106,7 @@ class MenuState extends SBState {
 
     private function onMenuHandling(choice:String):Void {
         switch (choice) {
-            case "NEW MAP": throw "In construction...";
+            case "NEW MAP": onLevelSelection();
             case "LOAD MAP": onLoadingGame();
             case "OPTIONS": onOptionsMenu();
             case "EXIT GAME": Sys.exit(1);
@@ -142,6 +143,34 @@ class MenuState extends SBState {
         viewThreeDe.render();
     }
 
+    function onLevelSelection():Void {
+        var levelSelection = new LevelSelectionOverlay(this);
+        levelSelection.onClose = function() {
+            levelSelection.destroy();
+        }
+        
+        if (stage != null && !stage.contains(levelSelection)) {
+            stage.addChild(levelSelection);
+
+            if (Main.stateMng != null && Main.stateMng.debug != null) {
+                stage.setChildIndex(Main.stateMng.debug, stage.numChildren - 1);
+            }
+        }
+    }
+
+    function onLoadingGame():Void {
+        if (soundCh != null) soundCh.stop();
+        cleanup();
+
+        Timer.delay(function() {
+            if (Main.stateMng != null) {
+                Main.stateMng.switchState(new LoadingState("dev_stage"));
+            } else {
+                switchState(new LoadingState("dev_stage"));
+            }
+        }, 2000);
+    }
+
     function onOptionsMenu():Void {
         var options = new OptionsOverlay(this);
         options.onClose = function() {
@@ -154,17 +183,6 @@ class MenuState extends SBState {
             if (Main.stateMng != null && Main.stateMng.debug != null) {
                 stage.setChildIndex(Main.stateMng.debug, stage.numChildren - 1);
             }
-        }
-    }
-
-    function onLoadingGame():Void {
-        if (soundCh != null) soundCh.stop();
-        cleanup();
-
-        if (Main.stateMng != null) {
-            Main.stateMng.switchState(new LoadingState("dev_stage"));
-        } else {
-            switchState(new LoadingState("dev_stage"));
         }
     }
 

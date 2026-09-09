@@ -304,7 +304,7 @@ class OptionsOverlay extends SBSubState {
         mouseChildren = false;
 
         removeEventListener(Event.ENTER_FRAME, onEnterFrameFadeIn);
-        addEventListener(Event.ENTER_FRAME, onEnterFrameFadeOut);
+        addEventListener(Event.EXIT_FRAME, onEnterFrameFadeOut);
     }
 
     private function onEnterFrameFadeOut(e:Event):Void {
