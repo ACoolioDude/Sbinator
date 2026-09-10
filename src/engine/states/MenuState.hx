@@ -195,6 +195,7 @@ class MenuState extends SBState {
             "QUIT SBINATOR",
             "Do you want to end game session?",
             function () {
+                if (soundCh != null) soundCh.stop();
                 cleanup();
                 haxe.Timer.delay(function(){
                     Sys.exit(0);
