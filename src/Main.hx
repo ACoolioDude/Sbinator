@@ -32,7 +32,7 @@ class Main extends Sprite {
 
         Main.stateMng = new StateHandler(this, debug);
 
-        stateMng.switchState(new InitState());
+        stateMng.switchState(new VideoIntro());
 
         stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDownPressed);
         stage.addEventListener(Event.ENTER_FRAME, onEnterFrame);

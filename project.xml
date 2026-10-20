@@ -22,11 +22,13 @@
     <haxelib name="away3d" />
     <haxelib name="lime" />
     <haxelib name="openfl" />
+    <haxelib name="hxvlc" />
 
     <assets path="assets" rename="assets" />
     <assets path="assets/images" rename="images" />
     <assets path="assets/data/" rename="data" />
     <assets path="assets/sounds" rename="sounds" />
+    <assets path="assets/videos" rename="videos" />
 
     <set name="BUILD_DIR" value="export/debug" if="debug" />
 	<set name="BUILD_DIR" value="export/release" unless="debug" />
