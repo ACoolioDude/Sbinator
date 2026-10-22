@@ -26,13 +26,19 @@ class Main extends Sprite {
         removeEventListener(Event.ADDED_TO_STAGE, onAddedStage);
 
         SBCrash.init();
+        Options.load();
+
+        Lib.current.stage.frameRate = (Options.fps == 0) ? 0 : Options.fps;
 
         debug = new Debug(null);
         debug.visible = false;
 
         Main.stateMng = new StateHandler(this, debug);
 
-        stateMng.switchState(new VideoIntro());
+        if (Options.introVideo) 
+            stateMng.switchState(new VideoIntro());
+        else 
+            stateMng.switchState(new InitState());
 
         stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDownPressed);
         stage.addEventListener(Event.ENTER_FRAME, onEnterFrame);

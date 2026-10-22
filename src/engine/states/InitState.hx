@@ -71,8 +71,7 @@ class InitState extends SBState {
         stage.addEventListener(Event.RESIZE, onResize);
 
         layout();
-        Options.load();
-        Lib.current.stage.frameRate = (Options.fps == 0) ? 0 : Options.fps;
+        // Options.load();
         onPreloadingStart();
     }
 

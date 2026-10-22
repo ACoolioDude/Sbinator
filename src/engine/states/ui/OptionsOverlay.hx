@@ -40,6 +40,10 @@ class OptionsOverlay extends SBSubState {
     private var tempFov:Int;
     private var tempSkyboxSpeed:Float;
 
+    private var initIntroVideo:Bool;
+    private var tempIntroVideo:Bool;
+    private var introVideoText:TextField;
+
     private var isChanged:Bool = false;
     public var onClose:Void -> Void;
 
@@ -88,6 +92,9 @@ class OptionsOverlay extends SBSubState {
         tempFov = (targetState != null && targetState.camera != null && Reflect.hasField(targetState, "lens")) ? Std.int(targetState.camera.lens.fieldOfView) : Options.skyboxFov;
         initSkyboxFov = tempFov;
 
+        tempIntroVideo = Options.introVideo;
+        initIntroVideo = tempIntroVideo;
+
         background = new Sprite();
         addChild(background);
 
@@ -101,9 +108,9 @@ class OptionsOverlay extends SBSubState {
         addChild(contentArea);
 
         createTab("Video", 0, function() createOptionCategory("Video"));
-        createTab("Audio", 95, function() createOptionCategory("Audio"));
-        createTab("Keyboard", 190, function() createOptionCategory("Keyboard"));
-        createTab("Mouse", 285, function() createOptionCategory("Mouse"));
+        createTab("Engine", 95, function() createOptionCategory("Engine"));
+        // createTab("Keyboard", 190, function() createOptionCategory("Keyboard"));
+        // createTab("Mouse", 285, function() createOptionCategory("Mouse"));
 
         createOptionCategory("Video");
 
@@ -215,7 +222,7 @@ class OptionsOverlay extends SBSubState {
     }
 
     private function updateOptions():Void {
-        isChanged = (tempFpsIndex != fpsIndex) || (tempSkyboxSpeed != initSkyboxSpeed) || (tempFov != initSkyboxFov);
+        isChanged = (tempFpsIndex != fpsIndex) || (tempSkyboxSpeed != initSkyboxSpeed) || (tempFov != initSkyboxFov) || (tempIntroVideo != initIntroVideo);
 
         applyButt.graphics.clear();
         applyButt.graphics.beginFill(isChanged ? 0x00833b : 0x333333, 1.0);
@@ -231,6 +238,7 @@ class OptionsOverlay extends SBSubState {
 
         fpsText = null;
         skyboxFovValue = null;
+        introVideoText = null;
 
         if (category == "Video") {
             var currentFps = fpsNum[tempFpsIndex];
@@ -264,6 +272,12 @@ class OptionsOverlay extends SBSubState {
                 }
                 updateOptions();
             }, skyboxFovValue = createOptionValue(curFovStr, 30));
+        } else if (category == "Engine") {
+            createOptionRow("Intro Video", 0, function() {
+                tempIntroVideo = !tempIntroVideo;
+                introVideoText.text = tempIntroVideo ? "Enabled" : "Disabled";
+                updateOptions();
+            }, introVideoText = createOptionValue(tempIntroVideo ? "Enabled" : "Disabled", 0));
         }
         else {
             var placeholder = new TextField();
@@ -315,6 +329,7 @@ class OptionsOverlay extends SBSubState {
         Options.fps = fpsNum[fpsIndex];
         Options.skyboxFov = tempFov;
         Options.skyboxSpeed = tempSkyboxSpeed;
+        Options.introVideo = tempIntroVideo;
 
         Lib.current.stage.frameRate = (Options.fps == 0) ? 0 : Options.fps;
 
@@ -329,6 +344,7 @@ class OptionsOverlay extends SBSubState {
         initFps = Options.fps;
         initSkyboxSpeed = tempSkyboxSpeed;
         initSkyboxFov = tempFov;
+        initIntroVideo = tempIntroVideo;
 
         updateOptions();
     }

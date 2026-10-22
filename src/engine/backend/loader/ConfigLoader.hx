@@ -7,6 +7,7 @@ class Options {
     public static var fps:Int = 60;
     public static var skyboxSpeed:Float = 0.1;
     public static var skyboxFov:Int = 60;
+    public static var introVideo:Bool = true;
 
     private static inline var CONFIG_DIRECTORY:String = "assets/data/conf";
     private static inline var CONFIG_PATH:String = "assets/data/conf/settings.cfg";
@@ -15,7 +16,8 @@ class Options {
         var data = haxe.Json.stringify({
             fps: fps,
             skyboxSpeed: skyboxSpeed,
-            skyboxFov: skyboxFov
+            skyboxFov: skyboxFov,
+            introVideo : introVideo
         });
     
         try {
@@ -36,6 +38,7 @@ class Options {
                 if (Reflect.hasField(parsed, "fps")) fps = parsed.fps;
                 if (Reflect.hasField(parsed, "skyboxSpeed")) skyboxSpeed = parsed.skyboxSpeed;
                 if (Reflect.hasField(parsed, "skyboxFov")) skyboxFov = parsed.skyboxFov;
+                if (Reflect.hasField(parsed, "introVideo")) introVideo = parsed.introVideo;
             
                 trace('Configuration loaded successfully!');
             }
@@ -48,9 +51,11 @@ class Options {
         fps = 60;
         skyboxSpeed = 0.1;
         skyboxFov = 60;
+        introVideo = true;
 
         try {
             if (FileSystem.exists(CONFIG_PATH)) FileSystem.deleteFile(CONFIG_PATH);
+            trace('Resetting old options...');
         } catch (e:Dynamic) {
             trace('Configuration deletion failed: ${e}');
         }
