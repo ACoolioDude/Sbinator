@@ -41,6 +41,14 @@ class PauseSubstate extends SBSubState {
             e.stopImmediatePropagation();
             close();
         }
+
+        if (e.keyCode == Keyboard.BACKSPACE) {
+            if (Main.stateMng != null) {
+                Main.stateMng.switchState(new MenuState());
+            } else {
+                SBState.switchState(new MenuState());
+            }
+        }
     }
 
     override function onResize(e:Event) {

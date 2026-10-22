@@ -156,7 +156,7 @@ class LoadingState extends SBState {
                         if (Main.stateMng != null) {
                             Main.stateMng.switchState(playstateInst);
                         } else {
-                            switchState(playstateInst);
+                            SBState.switchState(playstateInst);
                         }
                     } 
                 }, 1500);

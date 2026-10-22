@@ -195,7 +195,7 @@ class InitState extends SBState {
         if (Main.stateMng != null) {
             Main.stateMng.switchState(new MenuState());
         } else {
-            switchState(new MenuState());
+            SBState.switchState(new MenuState());
         }
     }
 

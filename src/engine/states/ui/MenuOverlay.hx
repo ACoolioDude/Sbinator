@@ -13,6 +13,7 @@ class MenuOverlay extends SBSubState {
     private var options:Array<String> = [
         "NEW MAP",
         "LOAD MAP",
+        "CREDITS",
         "OPTIONS",
         "EXIT GAME"
     ];

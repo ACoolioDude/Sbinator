@@ -21,6 +21,7 @@ import engine.backend.system.substates.SBSubState;
 import engine.states.InitState;
 import engine.states.MenuState;
 import engine.states.VideoIntro;
+import engine.states.ui.CreditsOverlay;
 import engine.states.ui.LevelSelectionOverlay;
 import engine.states.ui.MenuOverlay;
 import engine.states.ui.OptionsOverlay;

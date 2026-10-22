@@ -112,6 +112,7 @@ class MenuState extends SBState {
         switch (choice) {
             case "NEW MAP": onLevelSelection();
             case "LOAD MAP": onLoadingGame();
+            case "CREDITS": onCreditsMenu();
             case "OPTIONS": onOptionsMenu();
             case "EXIT GAME": onExitGame();
             case _: trace('Option selected -> ${choice}');
@@ -170,9 +171,24 @@ class MenuState extends SBState {
             if (Main.stateMng != null) {
                 Main.stateMng.switchState(new LoadingState("dev_stage"));
             } else {
-                switchState(new LoadingState("dev_stage"));
+                SBState.switchState(new LoadingState("dev_stage"));
             }
         }, 2000);
+    }
+
+    function onCreditsMenu():Void {
+        var credits = new CreditsOverlay(this);
+        credits.onClose = function() {
+            credits.destroy();
+        }
+        
+        if (stage != null && !stage.contains(credits)) {
+            stage.addChild(credits);
+
+            if (Main.stateMng != null && Main.stateMng.debug != null) {
+                stage.setChildIndex(Main.stateMng.debug, stage.numChildren - 1);
+            }
+        }
     }
 
     function onOptionsMenu():Void {

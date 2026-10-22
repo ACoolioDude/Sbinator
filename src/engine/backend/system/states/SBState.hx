@@ -11,7 +11,7 @@ class SBState extends Sprite {
 
     }
 
-    public function switchState(nextState:SBState):Void {
+    public static function switchState(nextState:SBState):Void {
         
     }
 }
