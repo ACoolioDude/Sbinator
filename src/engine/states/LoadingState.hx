@@ -1,5 +1,6 @@
 package engine.states;
 
+import openfl.events.MouseEvent;
 import haxe.Json;
 import haxe.Timer;
 import openfl.display.StageAlign;
@@ -17,6 +18,9 @@ class LoadingState extends SBState {
     private var progressBar:Sprite;
     private var statusBg:Sprite;
     private var status:TextField;
+    private var closeBg:Sprite;
+    private var closeTxt:TextField;
+    private var closed:Bool = false;
 
     private var playstateInst:PlayState;
     private var mapData:MapMetadata;
@@ -54,9 +58,6 @@ class LoadingState extends SBState {
         bg = new Bitmap(bgBitmap);
         addChild(bg);
 
-        progressBar = new Sprite();
-        addChild(progressBar);
-
         statusBg = new Sprite();
         addChild(statusBg);
 
@@ -68,6 +69,25 @@ class LoadingState extends SBState {
         status.mouseEnabled = false;
         status.text = "Loading...";
         addChild(status);
+
+        closeBg = new Sprite();
+        closeBg.buttonMode = true;
+        closeBg.addEventListener(MouseEvent.CLICK, onCancelClick);
+        closeBg.addEventListener(MouseEvent.MOUSE_OVER, function(_) closeTxt.textColor = 0xFFFFFF);
+        closeBg.addEventListener(MouseEvent.MOUSE_OUT, function(_) closeTxt.textColor = 0xAAAAAA);
+        addChild(closeBg);
+
+        closeTxt = new TextField();
+        var formatX = new TextFormat("Bahnschrift", 14, 0xAAAAAA, true);
+        formatX.align = TextFormatAlign.CENTER;
+        closeTxt.defaultTextFormat = formatX;
+        closeTxt.selectable = false;
+        closeTxt.mouseEnabled = false;
+        closeTxt.text = "X";
+        closeBg.addChild(closeTxt);
+
+        progressBar = new Sprite();
+        addChild(progressBar);
 
         addEventListener(Event.ADDED_TO_STAGE, onAddedStage);
     }
@@ -124,20 +144,34 @@ class LoadingState extends SBState {
             var padding:Float = 10;
             var boxWidth:Float = 260;
             var textHeight:Float = 22;
+            var xSize:Float = textHeight;
 
-            var boxX:Float = w - boxWidth - margin;
             var boxHeight:Float = textHeight + barHeight + (padding * 2) + 4;
-            var boxY:Float = h - boxHeight - margin;
 
-            status.width = boxWidth - (padding * 2);
+            var pos = LoadingLayout.boxPosition(Options.loadingUI, w, h, boxWidth, boxHeight, margin);
+            var boxX:Float = pos.x;
+            var boxY:Float = pos.y;
+
+            status.width = boxWidth - (padding * 2) - xSize;
             status.height = textHeight;
             status.x = boxX + padding;
             status.y = boxY + padding;
 
+            closeBg.graphics.clear();
+            closeBg.graphics.beginFill(0x333333, 1.0);
+            closeBg.graphics.drawRoundRect(0, 0, xSize, xSize, 6, 6);
+            closeBg.graphics.endFill();
+            closeBg.x = boxX + boxWidth - padding - xSize;
+            closeBg.y = boxY + padding;
+
+            closeTxt.width = xSize;
+            closeTxt.height = xSize;
+            closeTxt.y = 2;
+
             statusBg.graphics.clear();
             statusBg.graphics.beginFill(0x000000, 0.9);
             statusBg.graphics.lineStyle(1, 0x444444, 0.8);
-            statusBg.graphics.drawRoundRect(boxX, boxY, boxWidth, boxHeight, 6, 6);
+            statusBg.graphics.drawRoundRect(boxX, boxY, boxWidth, boxHeight, 8, 8);
             statusBg.graphics.endFill();
 
             barX = boxX + padding;
@@ -150,13 +184,13 @@ class LoadingState extends SBState {
 
     private function drawBar():Void {
         progressBar.graphics.clear();
-        progressBar.graphics.beginFill(0x007E41, 1.0);
+        progressBar.graphics.beginFill(0x222222, 1.0);
         progressBar.graphics.drawRect(barX, barY, maxBarWidth, barHeight);
         progressBar.graphics.endFill();
 
         var currentBarWidth:Float = maxBarWidth * shownProgress;
         if (currentBarWidth > 0) {
-            progressBar.graphics.beginFill(0xFFFFFF, 1.0);
+            progressBar.graphics.beginFill(0x008150, 1.0);
             progressBar.graphics.drawRect(barX, barY, currentBarWidth, barHeight);
             progressBar.graphics.endFill();
         }
@@ -175,7 +209,7 @@ class LoadingState extends SBState {
             drawBar();
         }
 
-        if (failed || finished) return;
+        if (failed || finished || closed) return;
 
         if (shownProgress < targetProgress) return;
 
@@ -203,7 +237,7 @@ class LoadingState extends SBState {
         setStatus("Completed loading!");
 
         Timer.delay(function() {
-            if (cleaned) return;
+            if (cleaned || closed) return;
             if (playstateInst != null) {
                 if (Main.stateMng != null) {
                     Main.stateMng.switchState(playstateInst);
@@ -212,6 +246,20 @@ class LoadingState extends SBState {
                 }
             }
         }, 1500);
+    }
+
+    private function onCancelClick(e:MouseEvent):Void {
+        if (closed || finished) return;
+        closed = true;
+
+        playstateInst = null;
+
+        var menu = new MenuState();
+        if (Main.stateMng != null) {
+            Main.stateMng.switchState(menu);
+        } else {
+            SBState.switchState(menu);
+        }
     }
 
     private function onFailed():Void {
@@ -240,6 +288,10 @@ class LoadingState extends SBState {
         if (statusBg != null && contains(statusBg)) removeChild(statusBg);
         if (status != null && contains(status)) removeChild(status);
         if (progressBar != null && contains(progressBar)) removeChild(progressBar);
+        if (closeBg != null) {
+            closeBg.removeEventListener(MouseEvent.CLICK, onCancelClick);
+            if (contains(closeBg)) removeChild(closeBg);
+        }
 
         graphics.clear();
     }

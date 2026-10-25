@@ -1,5 +1,7 @@
 package;
 
+import openfl.media.SoundTransform;
+import openfl.media.SoundMixer;
 import lime.graphics.Image;
 import openfl.Lib;
 import openfl.display.Sprite;
@@ -12,6 +14,7 @@ class Main extends Sprite {
     public static var debug:Debug;
     public static var stateMng:StateHandler;
     public static var VERSION:String = "0.0.1";
+    private static var lostFocus:Bool = false;
 
     public function new() {
         super();
@@ -42,6 +45,9 @@ class Main extends Sprite {
 
         stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDownPressed);
         stage.addEventListener(Event.ENTER_FRAME, onEnterFrame);
+
+        stage.addEventListener(Event.ACTIVATE, onFocusGain);
+        stage.addEventListener(Event.DEACTIVATE, onFocusLost);
     }
 
     function onKeyDownPressed(e:KeyboardEvent):Void {
@@ -63,5 +69,21 @@ class Main extends Sprite {
         if (debug != null && debug.visible) {
             debug.update();
         }
+    }
+
+    function onFocusLost(e:Event):Void {
+        if (!Options.autoPause) return;
+
+        lostFocus = true;
+        SoundMixer.soundTransform = new SoundTransform(0);
+        stage.frameRate = 10;
+    }
+
+    function onFocusGain(e:Event):Void {
+        if (!lostFocus) return;
+
+        lostFocus = false;
+        SoundMixer.soundTransform = new SoundTransform(1);
+        stage.frameRate = (Options.fps == 0) ? 0 : Options.fps;
     }
 }

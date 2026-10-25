@@ -1,7 +1,7 @@
 package engine.states.game;
 
-import openfl.events.MouseEvent;
-import openfl.geom.Vector3D;
+import lime.tools.Asset;
+import haxe.Resource;
 import away3d.containers.View3D;
 import away3d.entities.Mesh;
 import away3d.primitives.CubeGeometry;
@@ -11,8 +11,12 @@ import away3d.materials.ColorMaterial;
 import away3d.materials.TextureMaterial;
 import away3d.textures.BitmapTexture;
 import away3d.textures.BitmapCubeTexture;
+import openfl.events.MouseEvent;
 import openfl.events.Event;
 import openfl.events.KeyboardEvent;
+import openfl.geom.Vector3D;
+import openfl.media.Sound;
+import openfl.media.SoundTransform;
 import openfl.ui.Keyboard;
 import openfl.utils.Assets;
 
@@ -60,6 +64,13 @@ class PlayState extends SBState {
     private var platformsBuilt:Bool = false;
     private var playerBuilt:Bool = false;
 
+    private var stepSound:Array<Sound> = [];
+    private var lastStep:Int = -1;
+    private var stepInst:Float = 0.0;
+    private static inline var STEP_COUNT:Int = 4;
+    private static inline var STEP_DISTANCE:Float = 160;
+    private static inline var STEP_VOLUME:Float = 0.5;
+
     public function new(?data:MapMetadata) {
         super();
         this.mapData = data;
@@ -77,7 +88,6 @@ class PlayState extends SBState {
 
         onResize(null);
     }
-
 
     public function buildView():Void {
         if (viewBuilt) return;
@@ -108,6 +118,16 @@ class PlayState extends SBState {
 
         addChild(substate);
     }
+
+    private function onPauseGame():Void {
+        if (substate != null) return;
+
+        var pauseState = new PauseSubstate();
+        pauseState.onResume = closeSubstate;
+        openSubState(pauseState);
+    }
+
+    private function onFocusLost(e:Event):Void if (Options.autoPause) onPauseGame();
 
     public function closeSubstate():Void {
         if (substate != null) {
@@ -193,6 +213,25 @@ class PlayState extends SBState {
         player.y = spawnY + 50;
         player.z = spawnZ;
         threeDeView.scene.addChild(player);
+
+        loadSteps();
+    }
+
+    private function loadSteps():Void {
+        for (steps in 1...STEP_COUNT + 1) {
+            var id = ResourceLoader.resolveId('sounds/player/footsteps/duct${steps}.wav');
+            if (id != null) stepSound.push(Assets.getSound(id));
+        }
+    }
+
+    private function playSteps():Void {
+        if (stepSound.length == 0) return;
+
+        var i = Std.random(stepSound.length);
+        if (stepSound.length > 1 && i == lastStep) i == (i + 1) % stepSound.length;
+        lastStep = i;
+
+        stepSound[i].play(0, 0, new SoundTransform(STEP_VOLUME));
     }
 
     private function setupListeners():Void {
@@ -209,6 +248,8 @@ class PlayState extends SBState {
         stage.addEventListener(Event.RESIZE, onResize);
         stage.addEventListener(Event.ENTER_FRAME, onEnterFrame);
 
+        stage.addEventListener(Event.DEACTIVATE, onFocusLost);
+
         onResize(null);
     }
 
@@ -217,6 +258,9 @@ class PlayState extends SBState {
             if (threeDeView != null) threeDeView.render();
             return;
         }
+
+        var ifItsOnGround:Bool = isGround;
+
         var moveX:Float = 0;
         var moveZ:Float = 0;
 
@@ -244,8 +288,15 @@ class PlayState extends SBState {
             player.x += directionX * movementSpeed;
             player.z += directionZ * movementSpeed;
 
+            if (isGround) {
+                stepInst += movementSpeed;
+                if (stepInst >= STEP_DISTANCE) playSteps();
+            }
+
             var angleMove = Math.atan2(directionX, directionZ) * (180 / Math.PI);
             player.rotationY = angleMove;
+        } else {
+            stepInst = STEP_DISTANCE * 0.5;
         }
 
         if (keyJump && isGround) {
@@ -284,6 +335,7 @@ class PlayState extends SBState {
         }
 
         if (player.y < voidY) respawnPlayer();
+        if (isGround && !ifItsOnGround) playSteps();
 
         if (threeDeView != null && player != null) {
             player.rotationY = -cameraYaw;
@@ -309,8 +361,10 @@ class PlayState extends SBState {
     private function onKeyDown(e:KeyboardEvent):Void {
         if (e.keyCode == Keyboard.ESCAPE) {
             if (substate == null) {
-                openSubState(new PauseSubstate());
-            } else {
+                var pauseSub = new PauseSubstate();
+                pauseSub.onResume = closeSubstate;
+                openSubState(pauseSub);
+            } else if (!substate.handleEscape()) {
                 closeSubstate();
             }
             return;
@@ -389,6 +443,8 @@ class PlayState extends SBState {
             stage.removeEventListener(MouseEvent.RIGHT_MOUSE_UP, onRightMouseUp);
             stage.removeEventListener(MouseEvent.MOUSE_UP, onReleaseMouseUp);
             stage.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
+            
+            stage.removeEventListener(Event.DEACTIVATE, onFocusLost);
         }
 
         if (threeDeView != null) {

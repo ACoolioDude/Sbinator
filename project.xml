@@ -11,8 +11,8 @@
 
     <haxeflag name="-D" value="keep_inline_positions" />
 
-    <haxeflag name="-D" value="HXCPP_STACK_TRACE" />
-    <haxeflag name="-D" value="HXCPP_STACK_lINE" />
+    <haxedef name="HXCPP_STACK_TRACE" />
+    <haxedef name="HXCPP_STACK_LINE" />
 
     <haxeflag name="-dce" value="no" />
 
@@ -23,6 +23,7 @@
     <haxelib name="lime" />
     <haxelib name="openfl" />
     <haxelib name="hxvlc" />
+    <haxelib name="hxp" />
 
     <assets path="assets" rename="assets" />
     <assets path="assets/images" rename="images" />

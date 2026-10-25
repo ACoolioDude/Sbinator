@@ -1,6 +1,5 @@
 package engine.states;
 
-import engine.states.ui.PopupOverlay;
 import away3d.cameras.lenses.PerspectiveLens;
 import haxe.Timer;
 import openfl.Lib;
@@ -36,6 +35,7 @@ class MenuState extends SBState {
     static var playlist:Array<String> = [
         "music/jiggle.ogg",
         "music/atlantis.ogg",
+        "music/extras-menu.ogg",
         "music/innocence.ogg",
         "music/regular-show.ogg"
     ];
@@ -108,7 +108,8 @@ class MenuState extends SBState {
     }
 
     function playNextTrack():Void {
-        var snd:Sound = Assets.getMusic(playlist[trackIndex]);
+        var id = ResourceLoader.resolveId(playlist[trackIndex]);
+        var snd:Sound = (id != null) ? Assets.getMusic(id) : null;
         if (snd == null) {
             scheduleNext();
             return;
@@ -255,7 +256,7 @@ class MenuState extends SBState {
                 cleanup();
                 haxe.Timer.delay(function(){
                     Sys.exit(0);
-                }, 700);
+                }, 1000);
             }
         );
 

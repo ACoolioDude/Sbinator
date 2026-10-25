@@ -16,6 +16,7 @@ import engine.backend.system.utils.SystemUtils;
 import engine.backend.system.utils.XorgUtils;
 import engine.backend.system.states.SBState;
 import engine.backend.system.substates.SBSubState;
+import engine.backend.ui.LoadingLayout;
 
 // States
 import engine.states.InitState;
@@ -24,6 +25,7 @@ import engine.states.VideoIntro;
 import engine.states.ui.CreditsOverlay;
 import engine.states.ui.LevelSelectionOverlay;
 import engine.states.ui.MenuOverlay;
+import engine.states.ui.PopupOverlay;
 import engine.states.ui.OptionsOverlay;
 import engine.states.LoadingState;
 

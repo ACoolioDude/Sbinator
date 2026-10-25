@@ -1,70 +1,156 @@
 package engine.states.game.substates;
 
-import openfl.ui.Keyboard;
+import engine.states.ui.MenuOverlay;
+import engine.states.ui.OptionsOverlay;
+import engine.states.ui.PopupOverlay;
 import openfl.display.Sprite;
 import openfl.events.Event;
-import openfl.events.KeyboardEvent;
-import openfl.text.TextField;
-import openfl.text.TextFormat;
-import openfl.text.TextFormatAlign;
-import openfl.text.TextFieldAutoSize;
 
 class PauseSubstate extends SBSubState {
     private var bg:Sprite;
-    private var text:TextField;
+    private var menu:MenuOverlay;
+
+    private var options:OptionsOverlay;
+    private var popup:PopupOverlay;
+
+    public var onResume:Void -> Void;
 
     public function new() {
         super();
 
         bg = new Sprite();
         addChild(bg);
-    
-        text = new TextField();
-        var format2 = new TextFormat("Bahnschrift", 14, 0xFFFFFF, true);
-        format2.align = TextFormatAlign.CENTER;
-        text.defaultTextFormat = format2;
-        text.selectable = false;
-        text.autoSize = TextFieldAutoSize.CENTER;
-        text.text = "PAUSED";
-        addChild(text);
+
+        menu = new MenuOverlay(MenuOverlay.PAUSE_ITEMS, "S B I N A T O R");
+        menu.fadeSpeed = 0.12;
+        menu.onOptionSelection = onMenuChoice;
+        addChild(menu);
 
         addEventListener(Event.ADDED_TO_STAGE, setupPause);
     }
 
     private function setupPause(e:Event):Void {
         removeEventListener(Event.ADDED_TO_STAGE, setupPause);
-        if (stage != null) stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+
+        layout();
+        menu.onOverlayShowing();
     }
 
-    private function onKeyDown(e:KeyboardEvent):Void {
-        if (e.keyCode == Keyboard.ESCAPE) {
-            e.stopImmediatePropagation();
-            close();
+    public function handleEscape():Bool {
+        if (popup != null) {
+            closePopup();
+            return true;
+        }
+        if (options != null) {
+            closeOptions();
+            return true;
+        }
+        return false;
+    }
+
+    private function onMenuChoice(choice:String):Void {
+        switch (choice) {
+            case "RESUME":
+                resume();
+            case "OPTIONS":
+                openOptions();
+            case "QUIT TO MENU":
+                openConfirm("QUIT TO MENU", "Leave this map and return to the main menu?", quitToMenu);
+            case "EXIT GAME":
+                openConfirm("QUIT SBINATOR", "Do you want to end game session?", function() Sys.exit(0));
+            case _:
+                trace('Pause option selected -> ${choice}');
+        }
+    }
+
+    private function resume():Void {
+        if (onResume != null) onResume() else close();
+    }
+
+    private function quitToMenu():Void {
+        if (Main.stateMng != null) {
+            Main.stateMng.switchState(new MenuState());
+        } else {
+            SBState.switchState(new MenuState());
+        }
+    }
+
+    private function openOptions():Void {
+        if (options != null || popup != null) return;
+
+        var opts = new OptionsOverlay(null);
+        opts.onClose = function() {
+            if (options == opts) options = null;
+            opts.destroy();
         }
 
-        if (e.keyCode == Keyboard.BACKSPACE) {
-            if (Main.stateMng != null) {
-                Main.stateMng.switchState(new MenuState());
-            } else {
-                SBState.switchState(new MenuState());
-            }
+        options = opts;
+        showOnTop(opts);
+    }
+
+    private function closeOptions():Void {
+        if (options == null) return;
+
+        var opts = options;
+        options = null;
+        opts.destroy();
+    }
+
+    private function openConfirm(title:String, message:String, onConfirm:Void -> Void):Void {
+        if (options != null || popup != null) return;
+
+        var pop = new PopupOverlay(title, message, function() {
+            popup = null;
+            onConfirm();
+        }, function() {
+            popup = null;
+        });
+
+        popup = pop;
+        showOnTop(pop);
+    }
+
+    private function closePopup():Void {
+        if (popup == null) return;
+
+        var pop = popup;
+        popup = null;
+        pop.close();
+        if (pop.parent != null) pop.parent.removeChild(pop);
+    }
+
+    private function showOnTop(overlay:Sprite):Void {
+        if (stage == null) return;
+
+        stage.addChild(overlay);
+
+        if (Main.stateMng != null && Main.stateMng.debug != null) {
+            stage.setChildIndex(Main.stateMng.debug, stage.numChildren - 1);
         }
+    }
+
+    private function layout():Void {
+        if (stage == null) return;
+
+        bg.graphics.clear();
+        bg.graphics.beginFill(0x000000, 0.5);
+        bg.graphics.drawRect(0, 0, stage.stageWidth, stage.stageHeight);
+        bg.graphics.endFill();
     }
 
     override function onResize(e:Event) {
-        if (stage == null) return;
-        
-        var w = stage.stageWidth;
-        var h = stage.stageHeight;
-
-        if (text != null) {
-            text.x = (w - text.width) / 2;
-            text.y = (h - text.height) / 2 - 20;
-        }
+        layout();
     }
 
     override function close():Void {
-        if (stage != null) stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+        closePopup();
+        closeOptions();
+
+        if (menu != null) {
+            menu.destroy();
+            menu = null;
+        }
+
         super.close();
     }
 }

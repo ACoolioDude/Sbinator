@@ -51,6 +51,14 @@ class OptionsOverlay extends SBSubState {
     private var tempIntroVideo:Bool;
     private var introVideoText:TextField;
 
+    private var initLoadingCorner:Int;
+    private var tempLoadingCorner:Int;
+    private var loadingCornerText:TextField;
+
+    private var initAutoPause:Bool;
+    private var tempAutoPause:Bool;
+    private var autoPauseText:TextField;
+
     private var isChanged:Bool = false;
     public var onClose:Void -> Void;
 
@@ -112,6 +120,12 @@ class OptionsOverlay extends SBSubState {
 
         tempIntroVideo = Options.introVideo;
         initIntroVideo = tempIntroVideo;
+
+        tempLoadingCorner = Options.loadingUI;
+        initLoadingCorner = tempLoadingCorner;
+
+        tempAutoPause = Options.autoPause;
+        initAutoPause = tempAutoPause;
 
         background = new Sprite();
         addChild(background);
@@ -265,7 +279,7 @@ class OptionsOverlay extends SBSubState {
     }
 
     private function updateOptions():Void {
-        isChanged = (tempFpsIndex != fpsIndex) || (tempSkyboxSpeed != initSkyboxSpeed) || (tempFov != initSkyboxFov) || (tempIntroVideo != initIntroVideo);
+        isChanged = (tempFpsIndex != fpsIndex) || (tempSkyboxSpeed != initSkyboxSpeed) || (tempFov != initSkyboxFov) || (tempIntroVideo != initIntroVideo) || (tempLoadingCorner != initLoadingCorner) || (tempAutoPause != initAutoPause);
 
         applyButt.graphics.clear();
         applyButt.graphics.beginFill(isChanged ? 0x00833b : 0x333333, 1.0);
@@ -284,6 +298,8 @@ class OptionsOverlay extends SBSubState {
         fpsText = null;
         skyboxFovValue = null;
         introVideoText = null;
+        loadingCornerText = null;
+        autoPauseText = null;
 
         if (category == "Video") {
             var currentFps = fpsNum[tempFpsIndex];
@@ -323,6 +339,18 @@ class OptionsOverlay extends SBSubState {
                 introVideoText.text = tempIntroVideo ? "Enabled" : "Disabled";
                 updateOptions();
             }, introVideoText = createOptionValue(tempIntroVideo ? "Enabled" : "Disabled", 0));
+
+            createOptionRow("Auto Pause", 30, function() {
+                tempAutoPause = !tempAutoPause;
+                autoPauseText.text = tempAutoPause ? "Enabled" : "Disabled";
+                updateOptions();
+            }, autoPauseText = createOptionValue(tempAutoPause ? "Enabled" : "Disabled", 30));
+
+            createOptionRow("Loading UI Position", 60, function() {
+                tempLoadingCorner = (tempLoadingCorner + 1) % LoadingLayout.CORNER_NAMES.length;
+                loadingCornerText.text = LoadingLayout.CORNER_NAMES[tempLoadingCorner];
+                updateOptions();
+            }, loadingCornerText = createOptionValue(LoadingLayout.CORNER_NAMES[tempLoadingCorner], 60));
         }
         else {
             var placeholder = new TextField();
@@ -379,6 +407,8 @@ class OptionsOverlay extends SBSubState {
         Options.skyboxFov = tempFov;
         Options.skyboxSpeed = tempSkyboxSpeed;
         Options.introVideo = tempIntroVideo;
+        Options.loadingUI = tempLoadingCorner;
+        Options.autoPause = tempAutoPause;
 
         Lib.current.stage.frameRate = (Options.fps == 0) ? 0 : Options.fps;
 
@@ -394,6 +424,8 @@ class OptionsOverlay extends SBSubState {
         initSkyboxSpeed = tempSkyboxSpeed;
         initSkyboxFov = tempFov;
         initIntroVideo = tempIntroVideo;
+        initLoadingCorner = tempLoadingCorner;
+        initAutoPause = tempAutoPause;
 
         updateOptions();
     }

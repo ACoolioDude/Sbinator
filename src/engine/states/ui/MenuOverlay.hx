@@ -12,15 +12,13 @@ import openfl.utils.Assets;
 class MenuOverlay extends SBSubState {
     private static inline var BASE_W:Float = 1280;
     private static inline var BASE_H:Float = 720;
+
     private var centerVertically:Bool = false;
 
-    private var options:Array<String> = [
-        "NEW MAP",
-        "LOAD MAP",
-        "CREDITS",
-        "OPTIONS",
-        "EXIT GAME"
-    ];
+    public static var MAIN_ITEMS:Array<String> = ["NEW MAP", "LOAD MAP", "CREDITS", "OPTIONS", "EXIT GAME"];
+    public static var PAUSE_ITEMS:Array<String> = ["RESUME", "OPTIONS", "QUIT TO MENU", "EXIT GAME"];
+
+    private var options:Array<String>;
 
     private var hover:Sound;
     private var selection:Sound;
@@ -30,12 +28,14 @@ class MenuOverlay extends SBSubState {
     private var textField:Array<TextField> = [];
     private var highlight:Sprite;
     private var onFading:Bool = false;
-    private var fadeSpeed:Float = 0.0015; 
+    public var fadeSpeed:Float = 0.0015; 
 
     public var onOptionSelection:String -> Void;
 
-    public function new() {
+    public function new(?items:Array<String>, ?titleText:String) {
         super();
+
+        options = (items != null) ? items.copy() : MAIN_ITEMS.copy();
 
         this.alpha = 0.0;
         this.visible = false;
@@ -43,7 +43,7 @@ class MenuOverlay extends SBSubState {
         hover = Assets.getSound("sounds/menus/buttonrollover.wav");
         selection = Assets.getSound("sounds/menus/buttonclickrelease.wav");
 
-        onTitleCreation();
+        onTitleCreation(titleText);
         onMenuOptionCreation();
 
         addEventListener(Event.ADDED_TO_STAGE, onAddedStage);
@@ -60,12 +60,13 @@ class MenuOverlay extends SBSubState {
         layoutUI();
     }
 
-    private function onTitleCreation():Void {
+    private function onTitleCreation(?titleText:String):Void {
         title = new TextField();
         var format:TextFormat = new TextFormat("Bahnschrift", 50, 0xFFFFFFFF, true);
 
         title.defaultTextFormat = format;
-        title.text = "S B I N A T O R";
+        title.text = (titleText != null) ? titleText : "S B I N A T O R";
+        title.mouseEnabled = false;
         title.selectable = false;
         addChild(title);
     }

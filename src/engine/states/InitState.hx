@@ -34,7 +34,12 @@ class InitState extends SBState {
         "images/menus/loading/loading.jpg",
         "sounds/menus/buttonrollover.wav",
         "sounds/menus/buttonclickrelease.wav",
+        "sounds/player/footsteps/duct1.wav",
+        "sounds/player/footsteps/duct2.wav",
+        "sounds/player/footsteps/duct3.wav",
+        "sounds/player/footsteps/duct4.wav",
         "music/atlantis.ogg",
+        "music/extras-menu.ogg",
         "music/innocence.ogg",
         "music/jiggle.ogg",
         "music/regular-show.ogg"
@@ -131,7 +136,7 @@ class InitState extends SBState {
         }
 
         for (entry in assetsArray) {
-            var path = resolveId(entry);
+            var path = ResourceLoader.resolveId(entry);
             if (path == null) {
                 missing.push(entry);
                 trace('MISSING asset (not in the project): ${entry}');
@@ -153,20 +158,6 @@ class InitState extends SBState {
                 onAssetsLoaded(path);
             }
         }
-    }
-
-    function resolveId(id:String):String {
-        if (Assets.exists(id)) return id;
-
-        if (StringTools.startsWith(id, "assets/")) {
-            var stripped = id.substr("assets/".length);
-            if (Assets.exists(stripped)) return stripped;
-        } else {
-            var prefixed = "assets/" + id;
-            if (Assets.exists(prefixed)) return prefixed;
-        }
-
-        return null;
     }
 
     function onAssetsLoaded(path:String):Void {
