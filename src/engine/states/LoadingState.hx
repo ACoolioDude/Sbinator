@@ -10,7 +10,7 @@ import openfl.display.Sprite;
 import openfl.events.Event;
 import openfl.text.TextField;
 import openfl.text.TextFormat;
-import openfl.text.TextFieldAutoSize;
+import openfl.text.TextFormatAlign;
 
 class LoadingState extends SBState {
     private var bg:Bitmap;
@@ -19,14 +19,36 @@ class LoadingState extends SBState {
     private var status:TextField;
 
     private var playstateInst:PlayState;
-    private var curStep:Int = 0;
-    private var totalStep:Int = 4;
     private var mapData:MapMetadata;
     private var mapName:String;
+
+    private var steps:Array<{label:String, run:Void -> Void}>;
+    private var curStep:Int = 0;
+    private var stepAnnounced:Bool = false;
+    private var failed:Bool = false;
+    private var finished:Bool = false;
+    private var cleaned:Bool = false;
+
+    private var shownProgress:Float = 0.0;
+    private var targetProgress:Float = 0.0;
+    private static inline var BAR_SPEED:Float = 0.25;
+
+    private var barX:Float = 0;
+    private var barY:Float = 0;
+    private var maxBarWidth:Float = 0;
+    private var barHeight:Float = 6;
 
     public function new(mapName:String = "dev_stage") {
         super();
         this.mapName = mapName;
+
+        steps = [
+            { label: "Reading map data", run: loadMapData },
+            { label: "Creating game state", run: createPlayState },
+            { label: "Building 3D view", run: buildView },
+            { label: "Building platforms", run: buildPlatforms },
+            { label: "Spawning player", run: buildPlayer }
+        ];
 
         var bgBitmap = ResourceLoader.bitmapData("images/menus/loading/loading.jpg");
         bg = new Bitmap(bgBitmap);
@@ -40,10 +62,10 @@ class LoadingState extends SBState {
 
         status = new TextField();
         var format2 = new TextFormat("Bahnschrift", 14, 0xFFFFFF, true);
-        format2.align = openfl.text.TextFormatAlign.CENTER;
+        format2.align = TextFormatAlign.LEFT;
         status.defaultTextFormat = format2;
         status.selectable = false;
-        status.autoSize = TextFieldAutoSize.CENTER;
+        status.mouseEnabled = false;
         status.text = "Loading...";
         addChild(status);
 
@@ -55,7 +77,32 @@ class LoadingState extends SBState {
         stage.addEventListener(Event.RESIZE, onResize);
         layout();
 
-        addEventListener(Event.ENTER_FRAME, onLoadingProcess);
+        addEventListener(Event.ENTER_FRAME, onFrame);
+    }
+
+    private function loadMapData():Void {
+        var jsonPath = 'data/maps/${mapName}.json';
+        if (Assets.exists(jsonPath)) {
+            mapData = Json.parse(Assets.getText(jsonPath));
+        } else {
+            failed = true;
+        }
+    }
+
+    private function createPlayState():Void {
+        playstateInst = new PlayState(mapData);
+    }
+
+    private function buildView():Void {
+        if (playstateInst != null) playstateInst.buildView();
+    }
+
+    private function buildPlatforms():Void {
+        if (playstateInst != null) playstateInst.buildPlatforms();
+    }
+
+    private function buildPlayer():Void {
+        if (playstateInst != null) playstateInst.buildPlayer();
     }
 
     private function layout():Void {
@@ -68,21 +115,22 @@ class LoadingState extends SBState {
         var h:Float = stage.stageHeight;
 
         if (bg != null && bg.bitmapData != null) {
-            bg.width = stage.stageWidth;
-            bg.height = stage.stageHeight;
+            bg.width = w;
+            bg.height = h;
         }
 
         if (status != null && statusBg != null && progressBar != null) {
             var margin:Float = 20;
             var padding:Float = 10;
-            var barHeight:Float = 6;
             var boxWidth:Float = 260;
+            var textHeight:Float = 22;
 
             var boxX:Float = w - boxWidth - margin;
-            var boxHeight:Float = status.height + barHeight + (padding * 2) + 4;
-
+            var boxHeight:Float = textHeight + barHeight + (padding * 2) + 4;
             var boxY:Float = h - boxHeight - margin;
 
+            status.width = boxWidth - (padding * 2);
+            status.height = textHeight;
             status.x = boxX + padding;
             status.y = boxY + padding;
 
@@ -92,81 +140,101 @@ class LoadingState extends SBState {
             statusBg.graphics.drawRoundRect(boxX, boxY, boxWidth, boxHeight, 6, 6);
             statusBg.graphics.endFill();
 
-            var barX:Float = boxX + padding;
-            var barY:Float = status.y + status.height + 4;
-            var maxBarWidth:Float = boxWidth - (padding * 2);
-            var progressRation:Float = curStep / totalStep;
-            var currentBarWidth:Float = maxBarWidth * progressRation;
+            barX = boxX + padding;
+            barY = status.y + textHeight + 4;
+            maxBarWidth = boxWidth - (padding * 2);
 
-            progressBar.graphics.clear();
-            progressBar.graphics.beginFill(0x222222, 1.0);
-            progressBar.graphics.drawRect(barX, barY, maxBarWidth, barHeight);
+            drawBar();
+        }
+    }
+
+    private function drawBar():Void {
+        progressBar.graphics.clear();
+        progressBar.graphics.beginFill(0x007E41, 1.0);
+        progressBar.graphics.drawRect(barX, barY, maxBarWidth, barHeight);
+        progressBar.graphics.endFill();
+
+        var currentBarWidth:Float = maxBarWidth * shownProgress;
+        if (currentBarWidth > 0) {
+            progressBar.graphics.beginFill(0xFFFFFF, 1.0);
+            progressBar.graphics.drawRect(barX, barY, currentBarWidth, barHeight);
             progressBar.graphics.endFill();
-
-            if (currentBarWidth > 0) {
-                progressBar.graphics.beginFill(0xFFFFFF, 1.0);
-                progressBar.graphics.drawRect(barX, barY, currentBarWidth, barHeight);
-                progressBar.graphics.endFill();
-            }
         }
     }
 
     private function onResize(e:Event):Void layout();
 
-    private function updateStatus(message:String):Void {
+    private function setStatus(message:String):Void {
         trace(message);
-        layout();
-    } 
+    }
 
-    private function onLoadingProcess(e:Event):Void {
-        switch (curStep) {
-            case 0:
-                var jsonPath = 'data/maps/${mapName}.json';
-                if (Assets.exists(jsonPath)) {
-                    var raw:String = Assets.getText(jsonPath);
-                    mapData = Json.parse(raw);
-                    updateStatus("Loading map level from " + jsonPath);
-                } else {
-                    updateStatus("Map failed to load!");
-                }
-                curStep++;
-                layout();
-
-            case 1:
-                updateStatus("Switching to new state instance");
-                playstateInst = new PlayState(mapData);
-                curStep++;
-                layout();
-            
-            case 2:
-                updateStatus("Load stage");
-                curStep++;
-                layout();
-
-            case 3:
-                updateStatus("Completed loading!");
-                curStep++;
-                layout();
-
-                removeEventListener(Event.ENTER_FRAME, onLoadingProcess);
-
-                Timer.delay(function() {
-                    trace('Loading last stage of ${stage != null}, PlayState instance ${playstateInst != null}');
-                    if (playstateInst != null) {
-                        if (Main.stateMng != null) {
-                            Main.stateMng.switchState(playstateInst);
-                        } else {
-                            SBState.switchState(playstateInst);
-                        }
-                    } 
-                }, 1500);
+    private function onFrame(e:Event):Void {
+        if (shownProgress < targetProgress) {
+            shownProgress += (targetProgress - shownProgress) * BAR_SPEED;
+            if (targetProgress - shownProgress < 0.002) shownProgress = targetProgress;
+            drawBar();
         }
+
+        if (failed || finished) return;
+
+        if (shownProgress < targetProgress) return;
+
+        if (curStep >= steps.length) {
+            onAllStepsDone();
+            return;
+        }
+
+        if (!stepAnnounced) {
+            setStatus(steps[curStep].label);
+            stepAnnounced = true;
+            return;
+        }
+
+        steps[curStep].run();
+        curStep++;
+        stepAnnounced = false;
+        targetProgress = curStep / steps.length;
+
+        if (failed) onFailed();
+    }
+
+    private function onAllStepsDone():Void {
+        finished = true;
+        setStatus("Completed loading!");
+
+        Timer.delay(function() {
+            if (cleaned) return;
+            if (playstateInst != null) {
+                if (Main.stateMng != null) {
+                    Main.stateMng.switchState(playstateInst);
+                } else {
+                    SBState.switchState(playstateInst);
+                }
+            }
+        }, 1500);
+    }
+
+    private function onFailed():Void {
+        setStatus("Map failed to load!");
+
+        Timer.delay(function() {
+            if (cleaned) return;
+            var menu = new MenuState();
+            if (Main.stateMng != null) {
+                Main.stateMng.switchState(menu);
+            } else {
+                SBState.switchState(menu);
+            }
+        }, 2000);
     }
 
     override public function cleanup():Void {
-        super.cleanup();
+        cleaned = true;
 
-        stage.removeEventListener(Event.RESIZE, onResize);
+        removeEventListener(Event.ENTER_FRAME, onFrame);
+        if (stage != null) stage.removeEventListener(Event.RESIZE, onResize);
+
+        super.cleanup();
 
         if (bg != null && contains(bg)) removeChild(bg);
         if (statusBg != null && contains(statusBg)) removeChild(statusBg);

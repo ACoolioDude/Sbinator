@@ -56,6 +56,10 @@ class PlayState extends SBState {
     private var movementSpeed:Float = 8.0;
     private var mapData:MapMetadata;
 
+    private var viewBuilt:Bool = false;
+    private var platformsBuilt:Bool = false;
+    private var playerBuilt:Bool = false;
+
     public function new(?data:MapMetadata) {
         super();
         this.mapData = data;
@@ -65,12 +69,34 @@ class PlayState extends SBState {
     private function onAddedStage(e:Event):Void {
         removeEventListener(Event.ADDED_TO_STAGE, onAddedStage);
 
-        setupView();
-        setupPlat();
-        setupPlayer();
+        buildView();
+        buildPlatforms();
+        buildPlayer();
+
         setupListeners();
 
         onResize(null);
+    }
+
+
+    public function buildView():Void {
+        if (viewBuilt) return;
+        viewBuilt = true;
+        setupView();
+    }
+
+    public function buildPlatforms():Void {
+        if (platformsBuilt) return;
+        platformsBuilt = true;
+        buildView();
+        setupPlat();
+    }
+
+    public function buildPlayer():Void {
+        if (playerBuilt) return;
+        playerBuilt = true;
+        buildPlatforms();
+        setupPlayer();
     }
 
     public function openSubState(target:PauseSubstate):Void {
@@ -354,6 +380,7 @@ class PlayState extends SBState {
 
         removeEventListener(Event.ENTER_FRAME, onEnterFrame);
         if (stage != null) {
+            stage.removeEventListener(Event.ENTER_FRAME, onEnterFrame);
             stage.removeEventListener(Event.RESIZE, onResize);
             stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
             stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyUp);

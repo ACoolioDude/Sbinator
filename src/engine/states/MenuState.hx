@@ -24,7 +24,6 @@ class MenuState extends SBState {
     var overlayFading:Bool = false;
     var overlayFadeSpeed:Float = 0.03;
 
-    var jiggle:Sound;
     var soundCh:SoundChannel;
     var soundTrans:SoundTransform;
 
@@ -32,6 +31,16 @@ class MenuState extends SBState {
     var tarVolume:Float = 1.0;
     var speedFade:Float = 0.01;
     var onMusicPlay:Bool = false;
+
+    static inline var MUSIC_GAP:Float = 60;
+    static var playlist:Array<String> = [
+        "music/jiggle.ogg",
+        "music/atlantis.ogg",
+        "music/innocence.ogg",
+        "music/regular-show.ogg"
+    ];
+    static var trackIndex:Int = 0;
+    static var nextPlayAt:Float = 0;
 
     public function new() {
         super();
@@ -72,7 +81,6 @@ class MenuState extends SBState {
         overlay.onOptionSelection = onMenuHandling;
 
         startOverlay();
-        playJiggle();
 
         stage.addEventListener(Event.RESIZE, onResize);
         stage.addEventListener(Event.ENTER_FRAME, onUpdate);
@@ -99,12 +107,44 @@ class MenuState extends SBState {
         return viewThreeDe;
     }
 
-    public function playJiggle():Void {
+    function playNextTrack():Void {
+        var snd:Sound = Assets.getMusic(playlist[trackIndex]);
+        if (snd == null) {
+            scheduleNext();
+            return;
+        }
+
+        curVolume = 0.0;
         soundTrans = new SoundTransform(0.0);
-        jiggle = Assets.getMusic("assets/music/jiggle.ogg");
-        if (jiggle != null) {
-            soundCh = jiggle.play(1, 9999, soundTrans);
-            onMusicPlay = true;
+        soundCh = snd.play(0, 0, soundTrans);
+
+        if (soundCh == null) {
+            scheduleNext();
+            return;
+        }
+
+        soundCh.addEventListener(Event.SOUND_COMPLETE, onTrackComplete);
+        onMusicPlay = true;
+    }
+
+    function onTrackComplete(e:Event):Void {
+        stopMusic();
+    }
+
+    function scheduleNext():Void {
+        trackIndex = (trackIndex + 1) % playlist.length;
+        nextPlayAt = Timer.stamp() + MUSIC_GAP;
+    }
+
+    function stopMusic():Void {
+        if (soundCh != null) {
+            soundCh.removeEventListener(Event.SOUND_COMPLETE, onTrackComplete);
+            soundCh.stop();
+            soundCh = null;
+        }
+        if (onMusicPlay) {
+            onMusicPlay = false;
+            scheduleNext();
         }
     }
 
@@ -128,6 +168,8 @@ class MenuState extends SBState {
 
     function onUpdate(e:Event):Void {
         if (viewThreeDe == null) return;
+
+        if (!onMusicPlay && Timer.stamp() >= nextPlayAt) playNextTrack();
 
         if (onMusicPlay && curVolume < tarVolume && soundCh != null) {
             curVolume += speedFade;
@@ -164,7 +206,6 @@ class MenuState extends SBState {
     }
 
     function onLoadingGame():Void {
-        if (soundCh != null) soundCh.stop();
         cleanup();
 
         Timer.delay(function() {
@@ -173,7 +214,7 @@ class MenuState extends SBState {
             } else {
                 SBState.switchState(new LoadingState("dev_stage"));
             }
-        }, 2000);
+        }, 700);
     }
 
     function onCreditsMenu():Void {
@@ -211,11 +252,10 @@ class MenuState extends SBState {
             "QUIT SBINATOR",
             "Do you want to end game session?",
             function () {
-                if (soundCh != null) soundCh.stop();
                 cleanup();
                 haxe.Timer.delay(function(){
                     Sys.exit(0);
-                }, 2000);
+                }, 700);
             }
         );
 
@@ -230,6 +270,8 @@ class MenuState extends SBState {
 
     override public function cleanup():Void {
         super.cleanup();
+
+        stopMusic();
 
         if (stage != null) {
             stage.removeEventListener(Event.RESIZE, onResize);

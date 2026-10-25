@@ -6,9 +6,16 @@ import openfl.events.Event;
 import openfl.events.MouseEvent;
 import openfl.text.TextField;
 import openfl.text.TextFormat;
+import openfl.text.TextFormatAlign;
 
 class OptionsOverlay extends SBSubState {
+    private static inline var BASE_W:Float = 1280;
+    private static inline var BASE_H:Float = 720;
+
     private var targetState:Dynamic;
+
+    private var uiScale:Float = 1.0;
+    private var currentCategory:String = "Video";
 
     // UI elements
     private var background:Sprite;
@@ -57,7 +64,7 @@ class OptionsOverlay extends SBSubState {
 
     override public function onAddedStage(e:Event):Void {
         removeEventListener(Event.ADDED_TO_STAGE, onAddedStage);
-        Lib.current.addEventListener(Event.RESIZE, onWindowResize);
+        Lib.current.stage.addEventListener(Event.RESIZE, onWindowResize);
         addEventListener(Event.ENTER_FRAME, onEnterFrameFadeIn);
 
         initUI();
@@ -72,6 +79,17 @@ class OptionsOverlay extends SBSubState {
             alpha = 1.0;
             removeEventListener(Event.ENTER_FRAME, onEnterFrameFadeIn);
         }
+    }
+
+    private function px(base:Float):Int {
+        return Std.int(Math.max(1, Math.round(base * uiScale)));
+    }
+
+    private function setFontSize(tf:TextField, size:Int):Void {
+        var fmt:TextFormat = tf.defaultTextFormat;
+        fmt.size = size;
+        tf.defaultTextFormat = fmt;
+        tf.setTextFormat(new TextFormat(null, size));
     }
 
     private function initUI():Void {
@@ -107,18 +125,15 @@ class OptionsOverlay extends SBSubState {
         contentArea = new Sprite();
         addChild(contentArea);
 
-        createTab("Video", 0, function() createOptionCategory("Video"));
-        createTab("Engine", 95, function() createOptionCategory("Engine"));
-        // createTab("Keyboard", 190, function() createOptionCategory("Keyboard"));
-        // createTab("Mouse", 285, function() createOptionCategory("Mouse"));
-
-        createOptionCategory("Video");
-
         title = new TextField();
         title.defaultTextFormat = new TextFormat("Bahnschrift", 12, 0xFFFFFF, true);
         title.text = "OPTIONS";
         title.selectable = false;
+        title.mouseEnabled = false;
         addChild(title);
+
+        var buttonFormat:TextFormat = new TextFormat("Bahnschrift", 12, 0xFFFFFF, false);
+        buttonFormat.align = TextFormatAlign.CENTER;
 
         closeButt = new Sprite();
         closeButt.buttonMode = true;
@@ -126,7 +141,7 @@ class OptionsOverlay extends SBSubState {
         addChild(closeButt);
 
         closeTitle = new TextField();
-        closeTitle.defaultTextFormat = new TextFormat("Bahnschrift", 12, 0xFFFFFF, false);
+        closeTitle.defaultTextFormat = buttonFormat;
         closeTitle.mouseEnabled = false;
         closeTitle.selectable = false;
         closeTitle.text = "Cancel";
@@ -137,7 +152,7 @@ class OptionsOverlay extends SBSubState {
         addChild(applyButt);
 
         applyTitle = new TextField();
-        applyTitle.defaultTextFormat = new TextFormat("Bahnschrift", 12, 0xFFFFFF, false);
+        applyTitle.defaultTextFormat = buttonFormat;
         applyTitle.mouseEnabled = false;
         applyTitle.selectable = false;
         applyTitle.text = "Apply";
@@ -150,11 +165,15 @@ class OptionsOverlay extends SBSubState {
         this.x = 0;
         this.y = 0;
 
-        var stageW:Float = (stage != null) ? stage.stageWidth : Lib.current.stage.stageWidth;
-        var stageH:Float = (stage != null) ? stage.stageHeight : Lib.current.stage.stageHeight;
-        
-        var panelW:Float = 700;
-        var panelH:Float = 450;
+        var st = Lib.current.stage;
+        var stageW:Float = st.stageWidth;
+        var stageH:Float = st.stageHeight;
+
+        uiScale = Math.min(stageW / BASE_W, stageH / BASE_H);
+        var s:Float = uiScale;
+
+        var panelW:Float = 700 * s;
+        var panelH:Float = 450 * s;
 
         background.graphics.clear();
         background.graphics.beginFill(0x000000, 0.6);
@@ -163,54 +182,78 @@ class OptionsOverlay extends SBSubState {
 
         panelUI.graphics.clear();
         panelUI.graphics.beginFill(0x1e1e1e, 0.95);
-        panelUI.graphics.lineStyle(2, 0x333333, 1.0);
-        panelUI.graphics.drawRoundRect(0, 0, panelW, panelH, 12, 12);
+        panelUI.graphics.lineStyle(2 * s, 0x333333, 1.0);
+        panelUI.graphics.drawRoundRect(0, 0, panelW, panelH, 12 * s, 12 * s);
         panelUI.graphics.endFill();
 
         panelUI.x = (stageW - panelW) / 2;
         panelUI.y = (stageH - panelH) / 2;
 
-        title.x = panelUI.x + 12;
-        title.y = panelUI.y + 10;
+        setFontSize(title, px(12));
+        title.x = panelUI.x + 12 * s;
+        title.y = panelUI.y + 10 * s;
+        title.width = 200 * s;
+        title.height = 22 * s;
 
-        tabBar.x = panelUI.x + 12;
-        tabBar.y = panelUI.y + 35;
+        tabBar.x = panelUI.x + 12 * s;
+        tabBar.y = panelUI.y + 35 * s;
 
-        contentArea.x = panelUI.x + 12;
-        contentArea.y = panelUI.y + 80;
+        contentArea.x = panelUI.x + 12 * s;
+        contentArea.y = panelUI.y + 80 * s;
+
+        buildTabs();
+        createOptionCategory(currentCategory);
+
+        var bw:Float = buttW * s;
+        var bh:Float = buttH * s;
 
         closeButt.graphics.clear();
         closeButt.graphics.beginFill(0x333333);
-        closeButt.graphics.drawRoundRect(0, 0, buttW, buttH, 8, 8);
+        closeButt.graphics.drawRoundRect(0, 0, bw, bh, 8 * s, 8 * s);
         closeButt.graphics.endFill();
-        closeButt.x = panelUI.x + panelW - buttW - 10;
-        closeButt.y = panelUI.y + 410;
+        closeButt.x = panelUI.x + panelW - bw - 10 * s;
+        closeButt.y = panelUI.y + 410 * s;
+        layoutButtonLabel(closeTitle, closeButt, bw, s);
 
-        closeTitle.x = closeButt.x + 18;
-        closeTitle.y = closeButt.y + 6;
-
-        applyButt.x = panelUI.x + panelW - buttW - 102;
-        applyButt.y = panelUI.y + 410;
-
-        applyTitle.x = applyButt.x + 20;
-        applyTitle.y = applyButt.y + 6;
+        applyButt.x = panelUI.x + panelW - bw - 102 * s;
+        applyButt.y = panelUI.y + 410 * s;
+        layoutButtonLabel(applyTitle, applyButt, bw, s);
 
         updateOptions();
     }
 
+    private function layoutButtonLabel(label:TextField, butt:Sprite, bw:Float, s:Float):Void {
+        setFontSize(label, px(12));
+        label.width = bw;
+        label.height = 20 * s;
+        label.x = butt.x;
+        label.y = butt.y + 6 * s;
+    }
+
+    private function buildTabs():Void {
+        while (tabBar.numChildren > 0) tabBar.removeChildAt(0);
+
+        createTab("Video", 0, function() createOptionCategory("Video"));
+        createTab("Engine", 95, function() createOptionCategory("Engine"));
+        // createTab("Keyboard", 190, function() createOptionCategory("Keyboard"));
+        // createTab("Mouse", 285, function() createOptionCategory("Mouse"));
+    }
+
     private function createTab(label:String, xPos:Float, onClick:Void -> Void):Void {
+        var s:Float = uiScale;
+
         var tab = new Sprite();
         tab.graphics.beginFill(0x2a2a2a, 1.0);
         tab.graphics.lineStyle(1, 0x3d3d3d, 1.0);
-        tab.graphics.drawRoundRect(xPos, 0, 90, 26, 4, 4);
+        tab.graphics.drawRoundRect(xPos * s, 0, 90 * s, 26 * s, 4 * s, 4 * s);
         tab.graphics.endFill();
 
         var text = new TextField();
-        text.defaultTextFormat = new TextFormat("_sans", 11, 0xCCCCCC);
+        text.defaultTextFormat = new TextFormat("_sans", px(11), 0xCCCCCC);
         text.text = label;
-        text.x = xPos + 15;
-        text.y = 5;
-        text.width = 70;
+        text.x = (xPos + 15) * s;
+        text.y = 5 * s;
+        text.width = 70 * s;
         text.mouseEnabled = false;
         tab.addChild(text);
 
@@ -226,7 +269,7 @@ class OptionsOverlay extends SBSubState {
 
         applyButt.graphics.clear();
         applyButt.graphics.beginFill(isChanged ? 0x00833b : 0x333333, 1.0);
-        applyButt.graphics.drawRoundRect(0, 0, buttW, buttH, 8, 8);
+        applyButt.graphics.drawRoundRect(0, 0, buttW * uiScale, buttH * uiScale, 8 * uiScale, 8 * uiScale);
         applyButt.graphics.endFill();
 
         applyButt.buttonMode = isChanged;
@@ -234,6 +277,8 @@ class OptionsOverlay extends SBSubState {
     }
 
     private function createOptionCategory(category:String):Void {
+        currentCategory = category;
+
         while (contentArea.numChildren > 0) contentArea.removeChildAt(0);
 
         fpsText = null;
@@ -281,27 +326,29 @@ class OptionsOverlay extends SBSubState {
         }
         else {
             var placeholder = new TextField();
-            placeholder.defaultTextFormat = new TextFormat("Bahnschrift", 14, 0x888888);
+            placeholder.defaultTextFormat = new TextFormat("Bahnschrift", px(14), 0x888888);
             placeholder.text = category + " coming...";
-            placeholder.x = 10;
-            placeholder.y = 10;
+            placeholder.x = 10 * uiScale;
+            placeholder.y = 10 * uiScale;
             contentArea.addChild(placeholder);
         }
     }
 
     private function createOptionRow(label:String, yPos:Float, onClickAction:Void -> Void, variable:TextField):Void {
+        var s:Float = uiScale;
+
         var labelTxt = new TextField();
-        labelTxt.defaultTextFormat = new TextFormat("Bahnschrift", 11, 0xCCCCCC);
+        labelTxt.defaultTextFormat = new TextFormat("Bahnschrift", px(11), 0xCCCCCC);
         labelTxt.text = label;
-        labelTxt.x = 10;
-        labelTxt.y = yPos + 6;
-        labelTxt.width = 200;
+        labelTxt.x = 10 * s;
+        labelTxt.y = (yPos + 6) * s;
+        labelTxt.width = 200 * s;
         labelTxt.mouseEnabled = false;
         contentArea.addChild(labelTxt);
 
         var hitArea = new Sprite();
         hitArea.graphics.beginFill(0x2d2d2d, 1.0);
-        hitArea.graphics.drawRoundRect(220, yPos, 220, 28, 4, 4);
+        hitArea.graphics.drawRoundRect(220 * s, yPos * s, 220 * s, 28 * s, 4 * s, 4 * s);
         hitArea.graphics.endFill();
         hitArea.buttonMode = true;
         hitArea.addEventListener(MouseEvent.CLICK, function(e:MouseEvent) {
@@ -312,12 +359,14 @@ class OptionsOverlay extends SBSubState {
     }
 
     private function createOptionValue(defaultTxt:String, yPos:Float):TextField {
+        var s:Float = uiScale;
+
         var text = new TextField();
-        text.defaultTextFormat = new TextFormat("Bahnschrift", 11, 0xFFFFFF);
+        text.defaultTextFormat = new TextFormat("Bahnschrift", px(11), 0xFFFFFF);
         text.text = defaultTxt;
-        text.x = 235;
-        text.y = yPos + 6;
-        text.width = 190;
+        text.x = 235 * s;
+        text.y = (yPos + 6) * s;
+        text.width = 190 * s;
         text.mouseEnabled = false;
         return text;
     }
@@ -349,7 +398,7 @@ class OptionsOverlay extends SBSubState {
         updateOptions();
     }
 
-    private function onWindowResize(e:Event) {
+    private function onWindowResize(e:Event):Void {
         layoutUI();
     }
 
@@ -360,7 +409,7 @@ class OptionsOverlay extends SBSubState {
         mouseChildren = false;
 
         removeEventListener(Event.ENTER_FRAME, onEnterFrameFadeIn);
-        addEventListener(Event.EXIT_FRAME, onEnterFrameFadeOut);
+        addEventListener(Event.ENTER_FRAME, onEnterFrameFadeOut);
     }
 
     private function onEnterFrameFadeOut(e:Event):Void {
@@ -373,9 +422,12 @@ class OptionsOverlay extends SBSubState {
     }
 
     public function destroy():Void {
-        removeEventListener(Event.ADDED_TO_STAGE, onEnterFrameFadeIn);
-        Lib.current.removeEventListener(Event.RESIZE, onWindowResize);
+        removeEventListener(Event.ADDED_TO_STAGE, onAddedStage);
+        removeEventListener(Event.ENTER_FRAME, onEnterFrameFadeIn);
+        removeEventListener(Event.ENTER_FRAME, onEnterFrameFadeOut);
+        Lib.current.stage.removeEventListener(Event.RESIZE, onWindowResize);
         if (closeButt != null) closeButt.removeEventListener(MouseEvent.CLICK, onClosureClick);
+        if (applyButt != null) applyButt.removeEventListener(MouseEvent.CLICK, onAcceptionClick);
         if (parent != null) parent.removeChild(this);
     }
 }

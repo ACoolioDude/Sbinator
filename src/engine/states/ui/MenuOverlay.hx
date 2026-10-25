@@ -1,6 +1,6 @@
 package engine.states.ui;
 
-import openfl.text.TextFormatAlign;
+import openfl.Lib;
 import openfl.display.Sprite;
 import openfl.events.Event;
 import openfl.events.MouseEvent;
@@ -10,6 +10,10 @@ import openfl.text.TextFormat;
 import openfl.utils.Assets;
 
 class MenuOverlay extends SBSubState {
+    private static inline var BASE_W:Float = 1280;
+    private static inline var BASE_H:Float = 720;
+    private var centerVertically:Bool = false;
+
     private var options:Array<String> = [
         "NEW MAP",
         "LOAD MAP",
@@ -22,6 +26,7 @@ class MenuOverlay extends SBSubState {
     private var selection:Sound;
     private var curSelection:Int = -1;
 
+    private var title:TextField;
     private var textField:Array<TextField> = [];
     private var highlight:Sprite;
     private var onFading:Bool = false;
@@ -41,19 +46,27 @@ class MenuOverlay extends SBSubState {
         onTitleCreation();
         onMenuOptionCreation();
 
+        addEventListener(Event.ADDED_TO_STAGE, onAddedStage);
         addEventListener(Event.ENTER_FRAME, onUpdate);
     }
 
+    override public function onAddedStage(e:Event):Void {
+        removeEventListener(Event.ADDED_TO_STAGE, onAddedStage);
+        Lib.current.stage.addEventListener(Event.RESIZE, onResize);
+        layoutUI();
+    }
+
+    override public function onResize(e:Event):Void {
+        layoutUI();
+    }
+
     private function onTitleCreation():Void {
-        var title:TextField = new TextField();
+        title = new TextField();
         var format:TextFormat = new TextFormat("Bahnschrift", 50, 0xFFFFFFFF, true);
 
         title.defaultTextFormat = format;
         title.text = "S B I N A T O R";
-        title.x = 80;
-        title.y = 100;
         title.selectable = false;
-        title.width = 600;
         addChild(title);
     }
 
@@ -61,20 +74,13 @@ class MenuOverlay extends SBSubState {
         highlight = new Sprite();
         addChild(highlight);
 
-        var startY:Float = 280;
-        var spacing:Float = 32;
-
         for (i in 0...options.length) {
             var text:TextField = new TextField();
             var format:TextFormat = new TextFormat("Bahnschrift", 20, 0xFFFFFFFF, false);
 
             text.defaultTextFormat = format;
             text.text = options[i];
-            text.x = 80;
-            text.y = startY + (i * spacing);
             text.selectable = false;
-            text.width = 300;
-            text.height = 28;
 
             var index:Int = i;
             text.addEventListener(MouseEvent.MOUSE_OVER, function(_) onHighlightSelection(index));
@@ -86,6 +92,52 @@ class MenuOverlay extends SBSubState {
         }
     }
 
+    private function layoutUI():Void {
+        var st = Lib.current.stage;
+        var s:Float = Math.min(st.stageWidth / BASE_W, st.stageHeight / BASE_H);
+
+        var titleY:Float = 100;
+        var startY:Float = 280;
+        var spacing:Float = 32;
+        var itemH:Float = 28;
+        var leftX:Float = 80;
+
+        var blockTop:Float = titleY;
+        var blockBottom:Float = startY + (options.length - 1) * spacing + itemH;
+        var blockCenter:Float = (blockTop + blockBottom) / 2;
+
+        var shiftY:Float = centerVertically ? (st.stageHeight / 2 - blockCenter * s) : 0;
+
+        setFontSize(title, Math.round(50 * s));
+        title.x = leftX * s;
+        title.y = titleY * s + shiftY;
+        title.width = 600 * s;
+        title.height = 80 * s;
+
+        for (i in 0...textField.length) {
+            var tf:TextField = textField[i];
+            setFontSize(tf, Math.round(20 * s));
+            tf.x = leftX * s;
+            tf.y = (startY + i * spacing) * s + shiftY;
+            tf.width = 300 * s;
+            tf.height = itemH * s;
+        }
+
+        if (curSelection >= 0) onHighlightSelection(curSelection);
+    }
+
+    private function setFontSize(tf:TextField, size:Float):Void {
+        var fmt:TextFormat = tf.defaultTextFormat;
+        fmt.size = Std.int(size);
+        tf.defaultTextFormat = fmt;
+        tf.setTextFormat(new TextFormat(null, Std.int(size)));
+    }
+
+    private function currentScale():Float {
+        var st = Lib.current.stage;
+        return Math.min(st.stageWidth / BASE_W, st.stageHeight / BASE_H);
+    }
+
     private function onHighlightSelection(index:Int):Void {
         if (!this.visible || this.alpha < 0.2) return;
 
@@ -95,11 +147,12 @@ class MenuOverlay extends SBSubState {
             if (hover != null) hover.play();
         }
 
+        var s:Float = currentScale();
         var text:TextField = textField[index];
 
         highlight.graphics.clear();
         highlight.graphics.beginFill(0x1F1F1F, 0.7);
-        highlight.graphics.drawRoundRect(text.x - 10, text.y, 240, text.height, 8, 8);
+        highlight.graphics.drawRoundRect(text.x - 10 * s, text.y, 240 * s, text.height, 8 * s, 8 * s);
         highlight.graphics.endFill();
 
         for (i in 0...textField.length) {
@@ -148,7 +201,9 @@ class MenuOverlay extends SBSubState {
     }
 
     public function destroy():Void {
+        removeEventListener(Event.ADDED_TO_STAGE, onAddedStage);
         removeEventListener(Event.ENTER_FRAME, onUpdate);
+        Lib.current.stage.removeEventListener(Event.RESIZE, onResize);
         highlight.graphics.clear();
         textField = [];
     }

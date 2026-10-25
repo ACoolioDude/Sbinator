@@ -28,10 +28,12 @@
     <assets path="assets/images" rename="images" />
     <assets path="assets/data/" rename="data" />
     <assets path="assets/sounds" rename="sounds" />
+    <assets path="assets/music" rename="music" />
     <assets path="assets/videos" rename="videos" />
 
     <set name="BUILD_DIR" value="export/debug" if="debug" />
 	<set name="BUILD_DIR" value="export/release" unless="debug" />
 
+    <assets path='app/icon.png' rename='icon.png' if='linux || mac' />
     <icon path="app/icon.png" size="256" />
 </project>

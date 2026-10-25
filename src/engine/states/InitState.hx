@@ -34,8 +34,13 @@ class InitState extends SBState {
         "images/menus/loading/loading.jpg",
         "sounds/menus/buttonrollover.wav",
         "sounds/menus/buttonclickrelease.wav",
-        "assets/music/jiggle.ogg"
+        "music/atlantis.ogg",
+        "music/innocence.ogg",
+        "music/jiggle.ogg",
+        "music/regular-show.ogg"
     ];
+
+    var missing:Array<String> = [];
 
     var loaderCount:Int = 0;
     var totalAssets:Int = 0;
@@ -71,7 +76,6 @@ class InitState extends SBState {
         stage.addEventListener(Event.RESIZE, onResize);
 
         layout();
-        // Options.load();
         onPreloadingStart();
     }
 
@@ -126,7 +130,15 @@ class InitState extends SBState {
             return;
         }
 
-        for (path in assetsArray) {
+        for (entry in assetsArray) {
+            var path = resolveId(entry);
+            if (path == null) {
+                missing.push(entry);
+                trace('MISSING asset (not in the project): ${entry}');
+                onAssetsLoaded(entry);
+                continue;
+            }
+
             var low = path.toLowerCase();
 
             if (StringTools.endsWith(low, ".ogg") || StringTools.endsWith(low, ".wav") || StringTools.endsWith(low, ".mp3")) {
@@ -143,6 +155,20 @@ class InitState extends SBState {
         }
     }
 
+    function resolveId(id:String):String {
+        if (Assets.exists(id)) return id;
+
+        if (StringTools.startsWith(id, "assets/")) {
+            var stripped = id.substr("assets/".length);
+            if (Assets.exists(stripped)) return stripped;
+        } else {
+            var prefixed = "assets/" + id;
+            if (Assets.exists(prefixed)) return prefixed;
+        }
+
+        return null;
+    }
+
     function onAssetsLoaded(path:String):Void {
         loaderCount++;
         trace('Loading ${loaderCount} / ${totalAssets}...');
@@ -151,6 +177,7 @@ class InitState extends SBState {
         if (loaderCount >= totalAssets) {
             isAssetComplete = true;
             trace('All assets completed loading!');
+            if (missing.length > 0) trace('Assets missing from the project (${missing.length}): ${missing.join(", ")}');
             onFadeReady();
         }
     }
