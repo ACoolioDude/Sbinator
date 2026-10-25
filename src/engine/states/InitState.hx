@@ -1,5 +1,6 @@
 package engine.states;
 
+import openfl.display.Bitmap;
 import openfl.Lib;
 import openfl.display.Sprite;
 import openfl.text.TextField;
@@ -16,6 +17,8 @@ class InitState extends SBState {
     var bg:Sprite;
     var bg2:Sprite;
     var status:TextField;
+    var sbinator:Bitmap;
+    var bitmapData = ResourceLoader.bitmapData("images/loading/sbinator.png");
     var spTime:Timer;
 
     var onFadeOut:Bool = false;
@@ -24,6 +27,7 @@ class InitState extends SBState {
     var assetsArray:Array<String> = [
         "data/maps/dev_stage.json",
         "fonts/bahnschrift.ttf",
+        "images/loading/sbinator.png",
         "images/menus/backgrounds/panorama_0.png",
         "images/menus/backgrounds/panorama_1.png",
         "images/menus/backgrounds/panorama_2.png",
@@ -73,6 +77,11 @@ class InitState extends SBState {
         status.embedFonts = false;
         addChild(status);
 
+        if (!Options.introVideo) {
+            sbinator = new Bitmap(bitmapData);
+            addChild(sbinator);
+        }
+
         addEventListener(Event.ADDED_TO_STAGE, onAddedStage);
     }
 
@@ -98,6 +107,14 @@ class InitState extends SBState {
         bg.graphics.beginFill(0x11009159, 1.0);
         bg.graphics.drawRect(0, 0, w, h);
         bg.graphics.endFill();
+
+
+        if (sbinator != null && bitmapData != null) {
+            var s:Float = Math.min(w * 0.6 / bitmapData.width, h * 0.6 / bitmapData.height);
+            sbinator.scaleX = sbinator.scaleY = s;
+            sbinator.x = (w - sbinator.width) / 2;
+            sbinator.y = (h - sbinator.height) / 2;
+        }
 
         if (status != null && bg2 != null) {
             var margin:Float = 15;

@@ -38,7 +38,7 @@ class VideoIntro extends SBState {
         stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
         stage.addEventListener(Event.RESIZE, onResize);
 
-        if (video.load("videos/valve.bik")) video.play(); else loadToInit();
+        if (video.load("videos/sbinator-hub.bik")) video.play(); else loadToInit();
     }
 
     function onResize(e:Event):Void {
