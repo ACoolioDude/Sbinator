@@ -18,7 +18,7 @@ class VideoIntro extends SBState {
         removeEventListener(Event.ADDED_TO_STAGE, onAddedStage);
 
         video = new Video();
-        video.smoothing = true;
+        video.smoothing = false;
 
         video.onFormatSetup.add(function():Void {
             video.width = stage.stageWidth;

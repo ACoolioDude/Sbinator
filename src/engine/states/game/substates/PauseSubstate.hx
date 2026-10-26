@@ -1,10 +1,9 @@
 package engine.states.game.substates;
 
-import engine.states.ui.MenuOverlay;
-import engine.states.ui.OptionsOverlay;
-import engine.states.ui.PopupOverlay;
 import openfl.display.Sprite;
 import openfl.events.Event;
+import openfl.media.SoundTransform;
+import openfl.media.SoundMixer;
 
 class PauseSubstate extends SBSubState {
     private var bg:Sprite;
@@ -52,6 +51,8 @@ class PauseSubstate extends SBSubState {
         switch (choice) {
             case "RESUME":
                 resume();
+            case "RESTART":
+                openConfirm("RESTART", "Restart map?", restart);
             case "OPTIONS":
                 openOptions();
             case "QUIT TO MENU":
@@ -67,11 +68,21 @@ class PauseSubstate extends SBSubState {
         if (onResume != null) onResume() else close();
     }
 
+    private function restart():Void {
+        if (Main.stateMng != null) {
+            Main.stateMng.switchState(new LoadingState());
+        } else {
+            SBState.switchState(new LoadingState());
+        }
+    }
+
     private function quitToMenu():Void {
         if (Main.stateMng != null) {
             Main.stateMng.switchState(new MenuState());
+            SoundMixer.soundTransform = new SoundTransform(1);
         } else {
             SBState.switchState(new MenuState());
+            SoundMixer.soundTransform = new SoundTransform(1);
         }
     }
 

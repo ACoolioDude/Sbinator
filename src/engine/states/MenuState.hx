@@ -1,23 +1,22 @@
 package engine.states;
 
-import away3d.cameras.lenses.PerspectiveLens;
 import haxe.Timer;
 import openfl.Lib;
-import openfl.media.SoundMixer;
-import openfl.ui.Keyboard;
+import openfl.display.StageAlign;
+import openfl.display.StageScaleMode;
+import openfl.display.BitmapData;
+import openfl.display.Bitmap;
 import openfl.events.KeyboardEvent;
-import away3d.containers.View3D;
-import away3d.primitives.SkyBox;
-import away3d.textures.BitmapCubeTexture;
 import openfl.events.Event;
 import openfl.media.Sound;
 import openfl.media.SoundChannel;
+import openfl.media.SoundMixer;
 import openfl.media.SoundTransform;
+import openfl.ui.Keyboard;
 import openfl.utils.Assets;
 
 class MenuState extends SBState {
-    var viewThreeDe:View3D;
-    var skybox:SkyBox;
+    var background:Bitmap;
     var overlay:MenuOverlay;
 
     var overlayFading:Bool = false;
@@ -50,37 +49,16 @@ class MenuState extends SBState {
     function onAddedStage(e:Event):Void {
         removeEventListener(Event.ADDED_TO_STAGE, onAddedStage);
 
-        viewThreeDe = new View3D();
-        addChild(viewThreeDe);
-
-        if (stage != null) {
-            viewThreeDe.width = stage.stageWidth;
-            viewThreeDe.height = stage.stageHeight;
-        }
-
-        var panoramaBitmaps = new BitmapCubeTexture(
-            ResourceLoader.bitmapData("images/menus/backgrounds/panorama_0.png"),
-            ResourceLoader.bitmapData("images/menus/backgrounds/panorama_2.png"),
-            ResourceLoader.bitmapData("images/menus/backgrounds/panorama_5.png"),
-            ResourceLoader.bitmapData("images/menus/backgrounds/panorama_4.png"),
-            ResourceLoader.bitmapData("images/menus/backgrounds/panorama_3.png"),
-            ResourceLoader.bitmapData("images/menus/backgrounds/panorama_1.png")
-        );
-
-        skybox = new SkyBox(panoramaBitmaps);
-        viewThreeDe.scene.addChild(skybox);
-
-        viewThreeDe.camera.lens.near = 0.1;
-        viewThreeDe.camera.lens.far = 990;
-        var lens = cast(viewThreeDe.camera.lens, PerspectiveLens);
-        if (lens != null) lens.fieldOfView = Options.skyboxFov;
-        viewThreeDe.camera.position.setTo(0, 0, 0);
+        var bitmapData = ResourceLoader.bitmapData("images/menus/backgrounds/menu_1.png");
+        background = new Bitmap(bitmapData);
+        addChild(background);
 
         overlay = new MenuOverlay();
         overlay.alpha = 0.0;
         overlay.onOptionSelection = onMenuHandling;
 
         startOverlay();
+        layout();
 
         stage.addEventListener(Event.RESIZE, onResize);
         stage.addEventListener(Event.ENTER_FRAME, onUpdate);
@@ -103,8 +81,19 @@ class MenuState extends SBState {
         }
     }
 
-    public function onGet3DView():View3D {
-        return viewThreeDe;
+    function layout():Void {
+        if (stage == null) return;
+
+        stage.scaleMode = StageScaleMode.NO_SCALE;
+        stage.align = StageAlign.TOP_LEFT;
+
+        var w:Float = stage.stageWidth;
+        var h:Float = stage.stageHeight;
+
+        if (background != null && background.bitmapData != null) {
+            background.width = w;
+            background.height = h;
+        }
     }
 
     function playNextTrack():Void {
@@ -160,16 +149,9 @@ class MenuState extends SBState {
         }
     }
 
-    function onResize(e:Event):Void {
-        if (stage != null && viewThreeDe != null) {
-            viewThreeDe.width = stage.stageWidth;
-            viewThreeDe.height = stage.stageHeight;
-        }
-    }
-
+    function onResize(e:Event):Void layout();
+    
     function onUpdate(e:Event):Void {
-        if (viewThreeDe == null) return;
-
         if (!onMusicPlay && Timer.stamp() >= nextPlayAt) playNextTrack();
 
         if (onMusicPlay && curVolume < tarVolume && soundCh != null) {
@@ -186,9 +168,6 @@ class MenuState extends SBState {
                 overlayFading = false;
             }
         }
-
-        viewThreeDe.camera.rotationY += 0.05;
-        viewThreeDe.render();
     }
 
     function onLevelSelection():Void {
@@ -277,17 +256,6 @@ class MenuState extends SBState {
         if (stage != null) {
             stage.removeEventListener(Event.RESIZE, onResize);
             stage.removeEventListener(Event.ENTER_FRAME, onUpdate);
-        }
-
-        if (viewThreeDe != null) {
-            if (contains(viewThreeDe)) removeChild(viewThreeDe);
-
-            if (viewThreeDe.scene != null) {
-                while (viewThreeDe.scene.numChildren > 0) {
-                    viewThreeDe.scene.removeChildAt(0);
-                }
-            }
-            viewThreeDe = null;
         }
 
         if (overlay != null) {

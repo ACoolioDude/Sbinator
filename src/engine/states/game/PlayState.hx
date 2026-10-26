@@ -1,7 +1,7 @@
 package engine.states.game;
 
-import lime.tools.Asset;
 import haxe.Resource;
+import haxe.Timer;
 import away3d.containers.View3D;
 import away3d.entities.Mesh;
 import away3d.primitives.CubeGeometry;
@@ -16,9 +16,12 @@ import openfl.events.Event;
 import openfl.events.KeyboardEvent;
 import openfl.geom.Vector3D;
 import openfl.media.Sound;
+import openfl.media.SoundMixer;
 import openfl.media.SoundTransform;
 import openfl.ui.Keyboard;
 import openfl.utils.Assets;
+
+typedef PlatformBox = {x:Float, y:Float, z:Float, width:Float, height:Float, depth:Float}
 
 class PlayState extends SBState {
     private var substate:PauseSubstate;
@@ -27,7 +30,7 @@ class PlayState extends SBState {
     private var skybox:SkyBox;
 
     private var platforms:Array<Mesh> = [];
-    private var platformBounds:Array<{x:Float, y:Float, z:Float, width:Float, height:Float, depth:Float}> = [];
+    private var platformBounds:Array<PlatformBox> = [];
     private var platformWidth:Float = 3000.0;
     private var platformDepth:Float = 3000.0;
     private var voidY:Float = -5000.0;
@@ -45,19 +48,38 @@ class PlayState extends SBState {
     private var cameraPitch:Float = 15;
     private var cameraDistance:Float = 800;
 
+    private var firstPerson:Bool = false;
+    private var keyPerspective:Bool = false;
+    private static inline var EYE_HEIGHT:Float = 30.0;
+    private static inline var LOCKED_SENS:Float = 0.15;
+
     private var keyUp:Bool = false;
     var keyDown:Bool = false;
     var keyLeft:Bool = false;
     var keyRight:Bool = false;
 
     private var velocity:Float = 0.0;
-    private var gravity:Float = -0.8;
-    private var jump:Float = 15.0;
+    private var gravity:Float = -2880.0;
+    private var jump:Float = 900.0;
     private var isGround:Bool = false;
     private var ground:Float = 50.0;
     private var keyJump:Bool = false;
 
-    private var movementSpeed:Float = 8.0;
+    private var movementSpeed:Float = 480.0;
+    private var velX:Float = 0.0;
+    private var velZ:Float = 0.0;
+    private var wantX:Float = 0.0;
+    private var wantZ:Float = 0.0;
+    private var lastTime:Float = 0.0;
+    private var lookTarget:Vector3D = new Vector3D();
+
+    private static inline var PHALF:Float = 50.0;
+    private static inline var EPS:Float = 0.001;
+    private static inline var STEP_HEIGHT:Float = 30.0;
+    private static inline var GROUND_ACCEL:Float = 14.0;
+    private static inline var AIR_ACCEL:Float = 4.0;
+    private static inline var MAX_FALL:Float = -3000.0;
+    private static inline var MAX_STEP_TIME:Float = 1 / 120;
     private var mapData:MapMetadata;
 
     private var viewBuilt:Bool = false;
@@ -113,8 +135,10 @@ class PlayState extends SBState {
         if (substate != null) closeSubstate();
         substate = target;
 
-        keyUp = keyDown = keyLeft = keyRight = keyJump = false;
+        keyUp = keyDown = keyLeft = keyRight = keyJump = keyPerspective = false;
         isRightMouse = false;
+        SoundMixer.soundTransform = new SoundTransform(0);
+        applyMouseLock(false);
 
         addChild(substate);
     }
@@ -127,13 +151,21 @@ class PlayState extends SBState {
         openSubState(pauseState);
     }
 
-    private function onFocusLost(e:Event):Void if (Options.autoPause) onPauseGame();
+    private function onFocusLost(e:Event):Void {
+        keyUp = keyDown = keyLeft = keyRight = keyJump = keyPerspective = false;
+        isRightMouse = false;
+        applyMouseLock(false);
+
+        if (Options.autoPause) onPauseGame();
+    }
 
     public function closeSubstate():Void {
         if (substate != null) {
             substate.close();
             if (contains(substate)) removeChild(substate);
             substate = null;
+            SoundMixer.soundTransform = new SoundTransform(1);
+            applyMouseLock(firstPerson);
         }
     }
 
@@ -228,7 +260,7 @@ class PlayState extends SBState {
         if (stepSound.length == 0) return;
 
         var i = Std.random(stepSound.length);
-        if (stepSound.length > 1 && i == lastStep) i == (i + 1) % stepSound.length;
+        if (stepSound.length > 1 && i == lastStep) i = (i + 1) % stepSound.length;
         lastStep = i;
 
         stepSound[i].play(0, 0, new SoundTransform(STEP_VOLUME));
@@ -249,17 +281,22 @@ class PlayState extends SBState {
         stage.addEventListener(Event.ENTER_FRAME, onEnterFrame);
 
         stage.addEventListener(Event.DEACTIVATE, onFocusLost);
+        stage.addEventListener(Event.ACTIVATE, onFocusGained);
+        if (stage.window != null) stage.window.onMouseMoveRelative.add(onMouseRelative);
 
         onResize(null);
     }
 
     private function onEnterFrame(e:Event):Void {
         if (substate != null) {
+            lastTime = Timer.stamp();
             if (threeDeView != null) threeDeView.render();
             return;
         }
 
-        var ifItsOnGround:Bool = isGround;
+        var now:Float = Timer.stamp();
+        var dt:Float = Math.min(now - lastTime, 0.05);
+        lastTime = now;
 
         var moveX:Float = 0;
         var moveZ:Float = 0;
@@ -269,8 +306,11 @@ class PlayState extends SBState {
         if (keyLeft) moveX -= 1;
         if (keyRight) moveX += 1;
 
-        var yawRad = cameraYaw * (Math.PI / 180);
+        wantX = 0;
+        wantZ = 0;
+
         if (moveX != 0 || moveZ != 0) {
+            var yawRad = cameraYaw * (Math.PI / 180);
             var forwardX = Math.sin(yawRad);
             var forwardZ = Math.cos(yawRad);
             var rightX = Math.cos(yawRad);
@@ -281,22 +321,9 @@ class PlayState extends SBState {
 
             var len = Math.sqrt(directionX * directionX + directionZ * directionZ);
             if (len > 0) {
-                directionX /= len;
-                directionZ /= len;
+                wantX = directionX / len;
+                wantZ = directionZ / len;
             }
-
-            player.x += directionX * movementSpeed;
-            player.z += directionZ * movementSpeed;
-
-            if (isGround) {
-                stepInst += movementSpeed;
-                if (stepInst >= STEP_DISTANCE) playSteps();
-            }
-
-            var angleMove = Math.atan2(directionX, directionZ) * (180 / Math.PI);
-            player.rotationY = angleMove;
-        } else {
-            stepInst = STEP_DISTANCE * 0.5;
         }
 
         if (keyJump && isGround) {
@@ -304,58 +331,154 @@ class PlayState extends SBState {
             isGround = false;
         }
 
-        velocity += gravity;
-        player.y += velocity;
-
-        isGround = false;
-
-        var pHalfW:Float = 50.0;
-        var pHalfH:Float = 50.0;
-        var pHalfD:Float = 50.0;
-
-        for (platform in platformBounds) {
-            var platformHalfW:Float = platform.width / 2.0;
-            var platformHalfH:Float = platform.height / 2.0;
-            var platformHalfD:Float = platform.depth / 2.0;
-
-            var xOver:Bool = Math.abs(player.x - platform.x) < (pHalfW + platformHalfW);
-            var zOver:Bool = Math.abs(player.z - platform.z) < (pHalfD + platformHalfD);
-
-            if (xOver && zOver) {
-                var topPlatform:Float = platform.y + platformHalfH;
-                var bottomPlayer:Float = player.y - pHalfH;
-
-                if (bottomPlayer <= topPlatform && (bottomPlayer - velocity) >= (topPlatform - 30.00)) {
-                    player.y = topPlatform + pHalfH;
-                    velocity = 0.0;
-                    isGround = true;
-                    break;
-                }
-            }
-        }
+        var steps:Int = Math.ceil(dt / MAX_STEP_TIME);
+        if (steps < 1) steps = 1;
+        var h:Float = dt / steps;
+        for (i in 0...steps) stepPhysics(h);
 
         if (player.y < voidY) respawnPlayer();
-        if (isGround && !ifItsOnGround) playSteps();
 
         if (threeDeView != null && player != null) {
             player.rotationY = -cameraYaw;
 
-            var yaw = cameraYaw * (Math.PI / 180);
-            var pitch = cameraPitch * (Math.PI / 180);
-
-            var horizontalDistance:Float = cameraDistance * Math.cos(pitch);
-            var verticalDistance:Float = cameraDistance * Math.sin(pitch);
-
-            var offsetX:Float = horizontalDistance * Math.sin(yaw);
-            var offsetZ:Float = -horizontalDistance * Math.cos(yaw);
-
-            threeDeView.camera.x = player.x + offsetX;
-            threeDeView.camera.y = player.y + verticalDistance;
-            threeDeView.camera.z = player.z + offsetZ;
-
-            threeDeView.camera.lookAt(new Vector3D(player.x, player.y + 50, player.z));
+            updateCamera();
             threeDeView.render();
-        } 
+        }
+    }
+
+    private function stepPhysics(h:Float):Void {
+        var wasOnGround:Bool = isGround;
+
+        var k:Float = Math.min(1.0, (isGround ? GROUND_ACCEL : AIR_ACCEL) * h);
+        velX += (wantX * movementSpeed - velX) * k;
+        velZ += (wantZ * movementSpeed - velZ) * k;
+        moveHorizontal(velX * h, velZ * h);
+
+        velocity += gravity * h;
+        if (velocity < MAX_FALL) velocity = MAX_FALL;
+
+        var fallSpeed:Float = velocity;
+        var movingUp:Bool = velocity > 0;
+
+        player.y += velocity * h;
+        isGround = false;
+
+        for (p in platformBounds) {
+            if (!overlaps(p)) continue;
+
+            if (movingUp) {
+                player.y = p.y - p.height / 2 - PHALF;
+            } else {
+                player.y = p.y + p.height / 2 + PHALF;
+                isGround = true;
+            }
+            velocity = 0.0;
+        }
+
+        if (isGround) {
+            var speed:Float = Math.sqrt(velX * velX + velZ * velZ);
+            if (speed > 40) {
+                stepInst += speed * h;
+                if (stepInst >= STEP_DISTANCE) {
+                    stepInst -= STEP_DISTANCE;
+                    playSteps();
+                }
+            } else {
+                stepInst = STEP_DISTANCE * 0.5;
+            }
+
+            if (!wasOnGround && fallSpeed < -350) playSteps();
+        }
+    }
+
+    private function moveHorizontal(dx:Float, dz:Float):Void {
+        player.x += dx;
+        for (p in platformBounds) {
+            if (!overlaps(p) || tryStepUp(p)) continue;
+
+            if (dx > 0) player.x = p.x - p.width / 2 - PHALF;
+            else if (dx < 0) player.x = p.x + p.width / 2 + PHALF;
+            velX = 0.0;
+        }
+
+        player.z += dz;
+        for (p in platformBounds) {
+            if (!overlaps(p) || tryStepUp(p)) continue;
+
+            if (dz > 0) player.z = p.z - p.depth / 2 - PHALF;
+            else if (dz < 0) player.z = p.z + p.depth / 2 + PHALF;
+            velZ = 0.0;
+        }
+    }
+
+    private function tryStepUp(p:PlatformBox):Bool {
+        if (!isGround) return false;
+
+        var rise:Float = (p.y + p.height / 2) - (player.y - PHALF);
+        if (rise > 0 && rise <= STEP_HEIGHT) {
+            player.y += rise;
+            return true;
+        }
+        return false;
+    }
+
+    private function overlaps(p:PlatformBox):Bool {
+        return Math.abs(player.x - p.x) < PHALF + p.width / 2 - EPS
+            && Math.abs(player.y - p.y) < PHALF + p.height / 2 - EPS
+            && Math.abs(player.z - p.z) < PHALF + p.depth / 2 - EPS;
+    }
+
+    private function applyMouseLock(on:Bool):Void {
+        if (stage == null || stage.window == null) return;
+        stage.window.mouseLock = on;
+    }
+
+    private function onMouseRelative(dx:Float, dy:Float):Void {
+        if (!firstPerson || substate != null) return;
+
+        cameraYaw += dx * LOCKED_SENS;
+        cameraPitch += dy * LOCKED_SENS;
+        cameraPitch = Math.max(-85.0, Math.min(85.0, cameraPitch));
+    }
+
+    private function onFocusGained(e:Event):Void if (firstPerson && substate == null) applyMouseLock(true);
+
+    private function updateCamera():Void {
+        var yaw = cameraYaw * (Math.PI / 180);
+        var pitch = cameraPitch * (Math.PI / 180);
+
+        var dirX = Math.sin(yaw) * Math.cos(pitch);
+        var dirY = -Math.sin(pitch);
+        var dirZ = Math.cos(yaw) * Math.cos(pitch);
+
+        if (firstPerson) {
+            var eyeY:Float = player.y + EYE_HEIGHT;
+
+            threeDeView.camera.x = player.x;
+            threeDeView.camera.y = eyeY;
+            threeDeView.camera.z = player.z;
+
+            lookTarget.setTo(player.x + dirX * 100, eyeY + dirY * 100, player.z + dirZ * 100);
+        } else {
+            threeDeView.camera.x = player.x - dirX * cameraDistance;
+            threeDeView.camera.y = player.y - dirY * cameraDistance;
+            threeDeView.camera.z = player.z - dirZ * cameraDistance;
+
+            lookTarget.setTo(player.x, player.y + 50, player.z);
+        }
+
+        threeDeView.camera.lookAt(lookTarget);
+    }
+
+    private function togglePerspective():Void {
+        firstPerson = !firstPerson;
+
+        if (player != null) player.visible = !firstPerson;
+
+        var minPitch:Float = firstPerson ? -85.0 : -30.0;
+        cameraPitch = Math.max(minPitch, Math.min(85.0, cameraPitch));
+
+        applyMouseLock(firstPerson);
     }
 
     private function onKeyDown(e:KeyboardEvent):Void {
@@ -375,6 +498,9 @@ class PlayState extends SBState {
             case Keyboard.A | Keyboard.LEFT:    keyLeft = true;
             case Keyboard.D | Keyboard.RIGHT:   keyRight = true;
             case Keyboard.SPACE:                keyJump  = true;
+            case Keyboard.F5:
+                if (!keyPerspective && substate == null) togglePerspective();
+                keyPerspective = true;
         }
     }
 
@@ -385,6 +511,7 @@ class PlayState extends SBState {
             case Keyboard.A | Keyboard.LEFT:    keyLeft = false;
             case Keyboard.D | Keyboard.RIGHT:   keyRight = false;
             case Keyboard.SPACE:                keyJump  = false;
+            case Keyboard.F5:                    keyPerspective = false;
         }
     }
 
@@ -399,7 +526,7 @@ class PlayState extends SBState {
     private function onReleaseMouseUp(e:MouseEvent):Void isRightMouse = false;
 
     private function onMouseMove(e:MouseEvent):Void {
-        if (!isRightMouse || substate != null) return;
+        if (!isRightMouse || substate != null || firstPerson) return;
 
         var deltaX:Float = e.stageX - rawMouseX;
         var deltaY:Float = e.stageY - rawMouseY;
@@ -407,20 +534,21 @@ class PlayState extends SBState {
         rawMouseX = e.stageX;
         rawMouseY = e.stageY;
 
-        cameraYaw += deltaX * 0.3;
-        cameraPitch -= deltaY * 0.3;
+        cameraYaw += deltaX * 0.3;  
+        cameraPitch += deltaY * 0.3;
 
+        var minPitch:Float = firstPerson ? -85.0 : -30.0;
         if (cameraPitch > 85) cameraPitch = 85;
-        if (cameraPitch < -30.0) cameraPitch = -30.0;
+        if (cameraPitch < minPitch) cameraPitch = minPitch;
     }
 
     private function respawnPlayer():Void {
-            player.x = spawnX;
-            player.y = spawnY;
-            player.z = spawnZ;
-            velocity = 0.0;
-            isGround = true;
-        }
+        player.x = spawnX;
+        player.y = spawnY + 50;
+        player.z = spawnZ;
+        velX = velZ = velocity = 0.0;
+        isGround = false;
+    }
 
     private function onResize(e:Event):Void {
         if (stage != null && threeDeView != null) {
@@ -445,6 +573,11 @@ class PlayState extends SBState {
             stage.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
             
             stage.removeEventListener(Event.DEACTIVATE, onFocusLost);
+            stage.removeEventListener(Event.ACTIVATE, onFocusGained);
+            if (stage.window != null) {
+                stage.window.onMouseMoveRelative.remove(onMouseRelative);
+                stage.window.mouseLock = false;
+            }
         }
 
         if (threeDeView != null) {
@@ -454,6 +587,7 @@ class PlayState extends SBState {
                 while (threeDeView.scene.numChildren > 0) threeDeView.scene.removeChildAt(0);
             }
 
+            threeDeView.dispose();
             threeDeView = null;
         }
     }

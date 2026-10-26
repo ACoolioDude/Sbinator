@@ -16,7 +16,7 @@ class MenuOverlay extends SBSubState {
     private var centerVertically:Bool = false;
 
     public static var MAIN_ITEMS:Array<String> = ["NEW MAP", "LOAD MAP", "CREDITS", "OPTIONS", "EXIT GAME"];
-    public static var PAUSE_ITEMS:Array<String> = ["RESUME", "OPTIONS", "QUIT TO MENU", "EXIT GAME"];
+    public static var PAUSE_ITEMS:Array<String> = ["RESUME", "RESTART", "OPTIONS", "QUIT TO MENU", "EXIT GAME"];
 
     private var options:Array<String>;
 
