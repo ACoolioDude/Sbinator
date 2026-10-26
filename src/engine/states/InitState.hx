@@ -29,6 +29,8 @@ class InitState extends SBState {
         "fonts/bahnschrift.ttf",
         "images/loading/sbinator.png",
         "images/menus/backgrounds/menu_1.png",
+        "images/menus/credits/acooliodude.jpeg",
+        "images/menus/credits/valve.png",
         "images/menus/level_selection/dev_stage.png",
         "images/menus/loading/loading.jpg",
         "sounds/menus/buttonrollover.wav",
