@@ -12,7 +12,6 @@ import openfl.text.TextFormat;
 import openfl.text.TextFormatAlign;
 
 class LevelSelectionOverlay extends SBSubState {
-    // Layout is designed for 1280x720 and scaled from there.
     private static inline var BASE_W:Float = 1280;
     private static inline var BASE_H:Float = 720;
 
@@ -66,7 +65,6 @@ class LevelSelectionOverlay extends SBSubState {
         }
     }
 
-    // Design-space size -> pixel font size for the current scale
     private function px(base:Float):Int {
         return Std.int(Math.max(1, Math.round(base * uiScale)));
     }
@@ -92,7 +90,6 @@ class LevelSelectionOverlay extends SBSubState {
         title.mouseEnabled = false;
         panelUI.addChild(title);
 
-        // Level cards live here, so they can be rebuilt on resize
         cards = new Sprite();
         panelUI.addChild(cards);
 
@@ -169,7 +166,6 @@ class LevelSelectionOverlay extends SBSubState {
 
         var s:Float = uiScale;
 
-        // Design units
         var startX:Float = 20;
         var startY:Float = 60;
         var cardW:Float = 175;
@@ -216,7 +212,7 @@ class LevelSelectionOverlay extends SBSubState {
             thumbnail.addEventListener(MouseEvent.DOUBLE_CLICK, function(e:MouseEvent):Void {
                 levelSelection = i;
 
-                target.cleanup(); // also stops the menu music
+                target.cleanup();
 
                 haxe.Timer.delay(function(){
                     if (Main.stateMng != null) Main.stateMng.switchState(new LoadingState(map.fileKey));

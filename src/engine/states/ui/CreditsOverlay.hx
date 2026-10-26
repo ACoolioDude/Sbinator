@@ -28,7 +28,6 @@ class CreditsOverlay extends SBSubState {
         initUI();
         layoutUI();
 
-        // Register once, directly on the stage
         stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
         stage.addEventListener(Event.RESIZE, onWindowResize);
         addEventListener(Event.ENTER_FRAME, onEnterFrameFadeIn);
@@ -39,7 +38,6 @@ class CreditsOverlay extends SBSubState {
         addChild(background);
     }
 
-    // Layout only, no listener registration here
     private function layoutUI():Void {
         x = 0;
         y = 0;

@@ -1,17 +1,17 @@
 package engine.states;
 
-import openfl.events.MouseEvent;
 import haxe.Json;
 import haxe.Timer;
-import openfl.display.StageAlign;
-import openfl.display.StageScaleMode;
-import openfl.utils.Assets;
 import openfl.display.Bitmap;
 import openfl.display.Sprite;
+import openfl.display.StageAlign;
+import openfl.display.StageScaleMode;
 import openfl.events.Event;
+import openfl.events.MouseEvent;
 import openfl.text.TextField;
 import openfl.text.TextFormat;
 import openfl.text.TextFormatAlign;
+import openfl.utils.Assets;
 
 class LoadingState extends SBState {
     private var bg:Bitmap;
